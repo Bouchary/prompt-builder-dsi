@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Prompt Builder — DSI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .card { background:white; border-radius:1rem; box-shadow: 0 6px 20px rgba(0,0,0,.06); padding:1rem; }
+    .btn { border-radius:1rem; padding:.5rem 1rem; background:#4f46e5; color:white; }
+    .btn-ghost { border-radius:1rem; padding:.5rem 1rem; background:white; border:1px solid #e5e7eb; }
+    .chip { display:inline-flex; align-items:center; gap:.25rem; border:1px solid #e5e7eb; border-radius:9999px; padding:.25rem .75rem; background:#f9fafb; font-size:.875rem }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="min-h-screen w-full py-8">
+    <div class="mx-auto max-w-6xl px-4">
+      <h1 class="text-3xl font-semibold mb-6">Assistant de création de prompt — DSI</h1>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="space-y-4">
+
+          <div class="card">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Domaine (présélection)</label>
+                <div class="flex gap-2">
+                  <select id="domain" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"></select>
+                  <button id="applyDomain" class="btn-ghost">Appliquer</button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Format de sortie</label>
+                <select id="format" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"></select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Niveau de détail</label>
+                <select id="detail" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"></select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Langue</label>
+                <select id="lang" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"></select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Ton</label>
+                <select id="tone" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Rôle</label>
+            <select id="role" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 mb-3"></select>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <div class="md:col-span-2">
+                <input id="newRole" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Ajouter un rôle personnalisé" />
+              </div>
+              <button id="addRole" class="btn-ghost">+ Ajouter</button>
+            </div>
+            <div id="rolesChips" class="mt-3 flex flex-wrap gap-2"></div>
+          </div>
+
+          <div class="card">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tâche (objectif principal)</label>
+            <div id="quickTasks" class="flex flex-wrap gap-2 mb-2"></div>
+            <textarea id="task" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 min-h-[100px]" placeholder="Ex: Rédiger une politique de sécurité SI adaptée à une PME"></textarea>
+          </div>
+
+          <div class="card">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Entreprise</label>
+                <input id="company" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" value="PME de 120 personnes, France"/>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Secteur</label>
+                <input id="sector" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" value="Services B2B"/>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Audience</label>
+                <input id="audience" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" value="Comité de direction et équipes IT"/>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Objectifs</label>
+                <input id="goals" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" value="Livrable exploitable dès la première version"/>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Contraintes</label>
+                <input id="constraints" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" value="Budget limité, conformité RGPD, ressources IT réduites"/>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Échéance</label>
+                <input id="deadline" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" value="2 semaines"/>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="flex items-center justify-between">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Mode équipes (adapter au public)</label>
+              <label class="flex items-center gap-2">
+                <input id="teamMode" type="checkbox" class="h-4 w-4" checked />
+                <span class="text-sm text-gray-700">Activé</span>
+              </label>
+            </div>
+            <div id="teamSection" class="mt-3">
+              <select id="team" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 mb-2"></select>
+              <ul id="teamAdds" class="list-disc list-inside text-sm text-gray-600"></ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Critères & sections à inclure</label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <label class="flex items-center gap-2"><input id="risks" type="checkbox" class="h-4 w-4" checked/> <span>Inclure Risques</span></label>
+              <label class="flex items-center gap-2"><input id="costs" type="checkbox" class="h-4 w-4" checked/> <span>Inclure Coûts/TCO</span></label>
+              <label class="flex items-center gap-2"><input id="kpi" type="checkbox" class="h-4 w-4" checked/> <span>Inclure KPI</span></label>
+              <label class="flex items-center gap-2"><input id="deps" type="checkbox" class="h-4 w-4" checked/> <span>Inclure Dépendances</span></label>
+              <label class="flex items-center gap-2"><input id="limits" type="checkbox" class="h-4 w-4" checked/> <span>Inclure Hypothèses/Limites</span></label>
+              <label class="flex items-center gap-2"><input id="sources" type="checkbox" class="h-4 w-4"/> <span>Demander Sources</span></label>
+              <label class="flex items-center gap-2"><input id="allowUnknown" type="checkbox" class="h-4 w-4" checked/> <span>Autoriser “Je ne sais pas”</span></label>
+              <label class="flex items-center gap-2"><input id="listUnknowns" type="checkbox" class="h-4 w-4" checked/> <span>Lister Inconnues/Questions</span></label>
+            </div>
+          </div>
+
+          <div class="card">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Exemples (few‑shot) — optionnel</label>
+            <textarea id="examples" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 min-h-[100px]" placeholder="Exemple 1:\n— Contexte: PME B2B\n— Sortie: plan en 5 sections\n\nExemple 2:\n— …"></textarea>
+          </div>
+
+          <div class="card">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Critères d’acceptation</label>
+            <input id="acceptance" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" value="Couverture complète, cohérence, actionnable, conforme RGPD, pas d’invention."/>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button id="copyBtn" class="btn flex items-center gap-2">Copier le prompt</button>
+            <button id="resetBtn" class="btn-ghost flex items-center gap-2">Réinitialiser</button>
+            <button id="exportBtn" class="btn-ghost flex items-center gap-2">Exporter config</button>
+            <label class="inline-flex items-center gap-2 cursor-pointer btn-ghost">
+              Importer config <input id="importFile" type="file" accept="application/json" class="hidden"/>
+            </label>
+          </div>
+
+        </div>
+
+        <div class="space-y-4">
+          <div class="card">
+            <div class="flex items-center justify-between mb-2">
+              <h2 class="text-lg font-medium">Aperçu du prompt généré</h2>
+              <span id="copiedBadge" class="text-green-600 text-sm hidden">Copié ✓</span>
+            </div>
+            <pre id="preview" class="whitespace-pre-wrap text-sm bg-gray-50 rounded-xl p-4 border max-h-[70vh] overflow-auto"></pre>
+          </div>
+
+          <div class="card">
+            <p class="text-sm text-gray-500">Astuce : collez ce prompt dans votre outil d’IA. Les balises &lt;contexte&gt;, &lt;instructions&gt;, &lt;exemples&gt; et le bloc ```tache facilitent une interprétation fiable. Utilisez l’export JSON pour partager vos presets avec d’autres DSI.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// --- Data ---
+const outputFormats = [
+  { value: "plan", label: "Plan numéroté" },
+  { value: "table", label: "Tableau Markdown" },
+  { value: "json", label: "JSON schema" },
+  { value: "doc", label: "Modèle de document" },
+  { value: "email", label: "Email professionnel" },
+  { value: "report", label: "Compte‑rendu / Synthèse" },
+];
+const detailLevels = [
+  { value: "synthese", label: "Synthèse" },
+  { value: "standard", label: "Standard" },
+  { value: "exhaustif", label: "Exhaustif" },
+];
+const tones = [
+  { value: "pro", label: "Professionnel" },
+  { value: "pedago", label: "Pédagogique" },
+  { value: "concis", label: "Concis" },
+  { value: "persuasif", label: "Persuasif" },
+];
+const languages = [
+  { value: "fr", label: "Français" },
+  { value: "en", label: "English" },
+];
+
+const defaultRoles = [
+  "Expert cybersécurité PME","Consultant outillage SI","Architecte cloud","Data governance lead","SRE / Incident manager",
+  "PMO SI","Juriste IT / RGPD","CTO coach","FinOps","Responsable ITSM / ITAM"
+];
+
+const teamProfiles = [
+  { value: "comex", label: "COMEX", adds: [
+    "Commencer par un résumé exécutif en 5 puces (impacts, coûts, risques, ROI, décisions).",
+    "Limiter le jargon technique et mettre en avant les enjeux business.",
+  ], tone: "pro", detail: "synthese" },
+  { value: "finance", label: "Direction Finance", adds: [
+    "Mettre en avant TCO, ROI, OPEX/CAPEX, et risques de conformité.",
+  ], tone: "pro", detail: "standard" },
+  { value: "rh", label: "RH", adds: [
+    "Mettre l’accent sur conduite du changement, formation et impacts humains.",
+  ], tone: "pedago", detail: "standard" },
+  { value: "ops", label: "Opérations / Production", adds: [
+    "Préciser la continuité de service, RTO/RPO, et procédures opérationnelles.",
+  ], tone: "pro", detail: "exhaustif" },
+  { value: "it", label: "Équipe IT", adds: [
+    "Inclure détails techniques, prérequis, dépendances et check‑lists.",
+  ], tone: "pro", detail: "exhaustif" },
+  { value: "juridique", label: "Juridique / RGPD", adds: [
+    "Citer bases légales applicables, responsabilités et preuves de conformité.",
+  ], tone: "pro", detail: "standard" },
+];
+
+const domainPresets = {
+  "Cybersécurité": {
+    tasks: [
+      "Rédiger une politique de sécurité SI adaptée à une PME",
+      "Concevoir un plan de sensibilisation sécurité sur 6 mois",
+      "Élaborer une procédure de gestion des vulnérabilités (EDR/patch)"
+    ],
+    toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: true }
+  },
+  "ITSM / ITAM": {
+    tasks: [
+      "Comparer 3 solutions ITSM pour une PME (tableau + reco)",
+      "Modéliser un processus de gestion des incidents et SLAs",
+      "Définir une CMDB minimale et procédures d’audit"
+    ],
+    toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: false }
+  },
+  "RGPD / Data Governance": {
+    tasks: [
+      "Produire une politique de rétention et d’archivage (RGPD)",
+      "Construire un registre des traitements priorisé pour une PME",
+      "Définir un plan de minimisation des données et DPIA quand nécessaire"
+    ],
+    toggles: { risks: true, costs: false, kpi: true, deps: true, limits: true, sources: true }
+  },
+  "Cloud / FinOps": {
+    tasks: [
+      "Établir un cadre FinOps (gouvernance, budgets, alertes, tagging)",
+      "Comparer 3 options d’hébergement (on‑prem, IaaS, PaaS) pour une appli",
+      "Mettre en place un atterrissage cloud (landing zone) minimal"
+    ],
+    toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: false }
+  },
+  "M365 / Collaboration": {
+    tasks: [
+      "Définir une gouvernance M365 (Teams/SharePoint) pour PME",
+      "Rédiger une politique de classification et DLP",
+      "Plan de migration fileserver vers SharePoint/OneDrive"
+    ],
+    toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: false }
+  },
+  "Roadmap & KPI": {
+    tasks: [
+      "Proposer une roadmap trimestrielle SI + KPI",
+      "Élaborer un tableau de bord de la disponibilité et sécurité",
+      "Définir des OKR SI alignés stratégie d’entreprise"
+    ],
+    toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: false }
+  }
+};
+
+// --- State persisted in localStorage ---
+function getLS(key, def){ try { const v = localStorage.getItem(key); return v?JSON.parse(v):def; } catch { return def; } }
+function setLS(key, v){ try { localStorage.setItem(key, JSON.stringify(v)); } catch {} }
+
+// Populate selects
+function fillOptions(sel, options) {
+  sel.innerHTML = "";
+  options.forEach(o=>{
+    const opt = document.createElement("option");
+    opt.value = o.value; opt.textContent = o.label;
+    sel.appendChild(opt);
+  });
+}
+
+// DOM ready
+document.addEventListener("DOMContentLoaded", () => {
+  const el = (id) => document.getElementById(id);
+
+  // Elements
+  const domain = el("domain");
+  const format = el("format");
+  const detail = el("detail");
+  const lang = el("lang");
+  const tone = el("tone");
+  const role = el("role");
+  const newRole = el("newRole");
+  const addRole = el("addRole");
+  const rolesChips = el("rolesChips");
+
+  const task = el("task");
+  const quickTasks = el("quickTasks");
+
+  const company = el("company");
+  const sector = el("sector");
+  const audience = el("audience");
+  const goals = el("goals");
+  const constraints = el("constraints");
+  const deadline = el("deadline");
+
+  const teamMode = el("teamMode");
+  const team = el("team");
+  const teamAdds = el("teamAdds");
+  const teamSection = el("teamSection");
+
+  const risks = el("risks");
+  const costs = el("costs");
+  const kpi = el("kpi");
+  const deps = el("deps");
+  const limits = el("limits");
+  const sources = el("sources");
+  const allowUnknown = el("allowUnknown");
+  const listUnknowns = el("listUnknowns");
+
+  const examples = el("examples");
+  const acceptance = el("acceptance");
+
+  const preview = el("preview");
+  const copyBtn = el("copyBtn");
+  const copiedBadge = el("copiedBadge");
+  const resetBtn = el("resetBtn");
+  const exportBtn = el("exportBtn");
+  const importFile = el("importFile");
+  const applyDomain = el("applyDomain");
+
+  // Init options
+  fillOptions(domain, Object.keys(domainPresets).map(k=>({value:k,label:k})));
+  fillOptions(format, outputFormats);
+  fillOptions(detail, detailLevels);
+  fillOptions(lang, languages);
+  fillOptions(tone, tones);
+  fillOptions(team, teamProfiles.map(p=>({value:p.value,label:p.label})));
+
+  // Roles (customizable)
+  let roles = getLS("dsi_roles", defaultRoles.slice());
+  function refreshRoles() {
+    role.innerHTML = "";
+    roles.forEach(r=>{
+      const opt = document.createElement("option");
+      opt.value = r; opt.textContent = r; role.appendChild(opt);
+    });
+    // chips
+    rolesChips.innerHTML = "";
+    roles.forEach(r=>{
+      const span = document.createElement("span");
+      span.className = "chip";
+      span.innerHTML = `${r} <button title="Supprimer" data-role="${r}" class="text-gray-400 hover:text-red-600">✕</button>`;
+      rolesChips.appendChild(span);
+    });
+    // chip delete
+    rolesChips.querySelectorAll("button[data-role]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const r = btn.getAttribute("data-role");
+        roles = roles.filter(x=>x!==r);
+        setLS("dsi_roles", roles);
+        if (role.value === r && roles.length) role.value = roles[0];
+        refreshRoles(); updatePreview();
+      });
+    });
+  }
+  refreshRoles();
+
+  addRole.addEventListener("click", ()=>{
+    const r = newRole.value.trim();
+    if (!r) return;
+    if (!roles.includes(r)) {
+      roles.push(r); setLS("dsi_roles", roles); newRole.value = "";
+      refreshRoles(); updatePreview();
+    }
+  });
+
+  // Load persisted values
+  function load(sel, key, def){ const v=getLS(key, def); sel.value=v; return v; }
+  load(domain, "dsi_domain", domain.options[0].value);
+  load(format, "dsi_format", "plan");
+  load(detail, "dsi_detail", "exhaustif");
+  load(lang, "dsi_lang", "fr");
+  load(tone, "dsi_tone", "pro");
+  role.value = getLS("dsi_role", roles[0]);
+
+  task.value = getLS("dsi_task", "Rédiger une politique de sécurité SI adaptée à une PME");
+  company.value = getLS("dsi_company", "PME de 120 personnes, France");
+  sector.value = getLS("dsi_sector", "Services B2B");
+  audience.value = getLS("dsi_audience", "Comité de direction et équipes IT");
+  goals.value = getLS("dsi_goals", "Livrable exploitable dès la première version");
+  constraints.value = getLS("dsi_constraints", "Budget limité, conformité RGPD, ressources IT réduites");
+  deadline.value = getLS("dsi_deadline", "2 semaines");
+
+  teamMode.checked = getLS("dsi_teamMode", true);
+  team.value = getLS("dsi_team", team.options[0].value);
+
+  risks.checked = getLS("dsi_risks", true);
+  costs.checked = getLS("dsi_costs", true);
+  kpi.checked = getLS("dsi_kpi", true);
+  deps.checked = getLS("dsi_deps", true);
+  limits.checked = getLS("dsi_limits", true);
+  sources.checked = getLS("dsi_sources", false);
+  allowUnknown.checked = getLS("dsi_allowUnknown", true);
+  listUnknowns.checked = getLS("dsi_listUnknowns", true);
+
+  examples.value = getLS("dsi_examples", "");
+  acceptance.value = getLS("dsi_acceptance", "Couverture complète, cohérence, actionnable, conforme RGPD, pas d’invention.");
+
+  // Quick tasks
+  function renderQuickTasks() {
+    quickTasks.innerHTML = "";
+    const tasks = (domainPresets[domain.value] || {tasks:[]}).tasks;
+    tasks.forEach(qt=>{
+      const b = document.createElement("button");
+      b.className = "text-xs px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 hover:bg-indigo-100";
+      b.textContent = qt;
+      b.addEventListener("click", ()=>{ task.value = qt; setLS("dsi_task", task.value); updatePreview(); });
+      quickTasks.appendChild(b);
+    });
+  }
+  renderQuickTasks();
+
+  // Apply domain
+  applyDomain.addEventListener("click", ()=>{
+    const d = domainPresets[domain.value];
+    if (!d) return;
+    if (d.tasks[0]) { task.value = d.tasks[0]; setLS("dsi_task", task.value); }
+    risks.checked = !!d.toggles.risks;
+    costs.checked = !!d.toggles.costs;
+    kpi.checked = !!d.toggles.kpi;
+    deps.checked = !!d.toggles.deps;
+    limits.checked = !!d.toggles.limits;
+    sources.checked = !!d.toggles.sources;
+    setLS("dsi_risks", risks.checked); setLS("dsi_costs", costs.checked);
+    setLS("dsi_kpi", kpi.checked); setLS("dsi_deps", deps.checked);
+    setLS("dsi_limits", limits.checked); setLS("dsi_sources", sources.checked);
+    renderQuickTasks(); updatePreview();
+  });
+
+  // Team section render
+  function renderTeamAdds() {
+    teamSection.style.display = teamMode.checked ? "block" : "none";
+    teamAdds.innerHTML = "";
+    const obj = teamProfiles.find(t=>t.value===team.value) || teamProfiles[0];
+    (obj.adds || []).forEach(a=>{
+      const li = document.createElement("li"); li.textContent = a; teamAdds.appendChild(li);
+    });
+  }
+  renderTeamAdds();
+
+  // Assembler
+  function assemble() {
+    const roleV = role.value;
+    const langV = lang.value, toneV = tone.value, detailV = detail.value;
+    const blocks = [];
+    blocks.push(`Tu es ${roleV}. Ta mission est de réaliser la tâche décrite en respectant strictement le format et les critères ci‑dessous.`);
+
+    const langTone = [];
+    if (langV === "fr") langTone.push("Rédige en français.");
+    if (langV === "en") langTone.push("Write in English.");
+    if (toneV === "pro") langTone.push("Ton: professionnel.");
+    if (toneV === "pedago") langTone.push("Ton: pédagogique.");
+    if (toneV === "concis") langTone.push("Ton: concis.");
+    if (toneV === "persuasif") langTone.push("Ton: persuasif.");
+    if (detailV === "synthese") langTone.push("Niveau de détail: synthèse.");
+    if (detailV === "standard") langTone.push("Niveau de détail: standard.");
+    if (detailV === "exhaustif") langTone.push("Niveau de détail: exhaustif.");
+
+    const teamAddsList = [];
+    if (teamMode.checked) {
+      const obj = teamProfiles.find(t=>t.value===team.value) || teamProfiles[0];
+      teamAddsList.push(...(obj.adds||[]));
+    }
+
+    const context = [
+      `Entreprise: ${company.value}`,
+      `Secteur: ${sector.value}`,
+      `Audience: ${audience.value}${teamMode.checked ? ` (adapter au public: ${team.options[team.selectedIndex].text})` : ""}`,
+      `Objectifs: ${goals.value}`,
+      `Contraintes: ${constraints.value}`,
+      `Échéance: ${deadline.value}`,
+    ].join("\\n");
+
+    const req = [];
+    if (risks.checked) req.push("Inclure une section Risques.");
+    if (costs.checked) req.push("Inclure estimation des Coûts/TCO si pertinent.");
+    if (kpi.checked) req.push("Inclure des KPI/mesures de succès.");
+    if (deps.checked) req.push("Mentionner les dépendances et prérequis.");
+    if (limits.checked) req.push("Indiquer les hypothèses et limites.");
+    if (sources.checked) req.push("Fournir des sources ou références quand pertinent.");
+    if (allowUnknown.checked) req.push("Si une information manque, répondre 'Je ne sais pas' plutôt que d'inventer.");
+    if (listUnknowns.checked) req.push("Lister explicitement les inconnues et les questions à poser.");
+    req.push(...teamAddsList);
+
+    let formatText = "";
+    switch (format.value) {
+      case "plan": formatText = "Sortie attendue: plan numéroté prêt à l’emploi."; break;
+      case "table": formatText = "Sortie attendue: tableau Markdown."; break;
+      case "json": formatText = "Sortie attendue: JSON conforme au schéma demandé."; break;
+      case "doc": formatText = "Sortie attendue: modèle de document prêt à copier."; break;
+      case "email": formatText = "Sortie attendue: email professionnel prêt à envoyer."; break;
+      case "report": formatText = "Sortie attendue: compte‑rendu structuré."; break;
+    }
+
+    const exBlock = examples.value.trim() ? `\\nExemples (few‑shot):\\n\\n${examples.value.trim()}` : "";
+    const taskBlock = `Tâche:\\n\\n${task.value}`;
+
+    const final = [
+      blocks.join("\\n"),
+      "\\n<contexte>\\n" + context + "\\n</contexte>",
+      "\\n<instructions>\\n" + [formatText, ...req, ...langTone].join("\\n") + "\\n</instructions>",
+      exBlock ? "\\n<exemples>\\n" + exBlock + "\\n</exemples>" : "",
+      "\\n<criteres_acceptation>\\n" + acceptance.value + "\\n</criteres_acceptation>",
+      "\\n```tache\\n" + taskBlock + "\\n```",
+    ].filter(Boolean).join("\\n\\n");
+
+    return final;
+  }
+
+  function updatePreview(){ preview.textContent = assemble(); }
+
+  // Persist on changes
+  const persistMap = [
+    [domain, "dsi_domain"], [format, "dsi_format"], [detail, "dsi_detail"], [lang, "dsi_lang"], [tone, "dsi_tone"],
+    [role, "dsi_role"], [task, "dsi_task"], [company, "dsi_company"], [sector, "dsi_sector"], [audience, "dsi_audience"],
+    [goals, "dsi_goals"], [constraints, "dsi_constraints"], [deadline, "dsi_deadline"],
+    [teamMode, "dsi_teamMode"], [team, "dsi_team"],
+    [risks, "dsi_risks"], [costs, "dsi_costs"], [kpi, "dsi_kpi"], [deps, "dsi_deps"], [limits, "dsi_limits"], [sources, "dsi_sources"],
+    [allowUnknown, "dsi_allowUnknown"], [listUnknowns, "dsi_listUnknowns"],
+    [examples, "dsi_examples"], [acceptance, "dsi_acceptance"]
+  ];
+  persistMap.forEach(([elem,key])=>{
+    elem.addEventListener("input", ()=>{ setLS(key, elem.type==="checkbox"? elem.checked : elem.value); updatePreview(); });
+    elem.addEventListener("change", ()=>{ setLS(key, elem.type==="checkbox"? elem.checked : elem.value); updatePreview(); });
+  });
+  domain.addEventListener("change", renderQuickTasks);
+  teamMode.addEventListener("change", renderTeamAdds);
+
+  // Actions
+  copyBtn.addEventListener("click", async ()=>{
+    try { await navigator.clipboard.writeText(preview.textContent); copiedBadge.classList.remove("hidden"); setTimeout(()=>copiedBadge.classList.add("hidden"), 1500); }
+    catch { alert("Impossible de copier. Sélectionnez le texte et copiez manuellement."); }
+  });
+  resetBtn.addEventListener("click", ()=>{
+    localStorage.clear(); location.reload();
+  });
+  exportBtn.addEventListener("click", ()=>{
+    const cfg = {
+      role: role.value, task: task.value, company: company.value, sector: sector.value, audience: audience.value,
+      goals: goals.value, constraints: constraints.value, deadline: deadline.value, format: format.value, detail: detail.value,
+      tone: tone.value, lang: lang.value, includeRisks: risks.checked, includeCosts: costs.checked, includeKpi: kpi.checked,
+      includeDeps: deps.checked, includeLimits: limits.checked, includeSources: sources.checked, allowUnknown: allowUnknown.checked,
+      listUnknowns: listUnknowns.checked, examples: examples.value, acceptance: acceptance.value, domain: domain.value,
+      teamMode: teamMode.checked, team: team.value, roles
+    };
+    const blob = new Blob([JSON.stringify(cfg, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob); const a = document.createElement("a");
+    a.href = url; a.download = "prompt_builder_config.json"; a.click();
+    setTimeout(()=>URL.revokeObjectURL(url), 800);
+  });
+  importFile.addEventListener("change", async (e)=>{
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    try{
+      const text = await f.text(); const cfg = JSON.parse(text);
+      if (cfg.roles) { roles = cfg.roles; setLS("dsi_roles", roles); refreshRoles(); }
+      const map = { role, task, company, sector, audience, goals, constraints, deadline, acceptance };
+      Object.entries(map).forEach(([k,elem])=>{ if (cfg[k]) { elem.value = cfg[k]; setLS("dsi_"+k, elem.value); } });
+      const sMap = { format, detail, tone, lang, domain, team };
+      Object.entries(sMap).forEach(([k,elem])=>{ if (cfg[k]) { elem.value = cfg[k]; setLS("dsi_"+k, elem.value); } });
+      const bMap = { includeRisks:risks, includeCosts:costs, includeKpi:kpi, includeDeps:deps, includeLimits:limits, includeSources:sources, allowUnknown, listUnknowns, teamMode };
+      Object.entries(bMap).forEach(([k,elem])=>{ if (typeof cfg[k]==="boolean") { elem.checked = cfg[k]; setLS("dsi_"+k, elem.checked); } });
+      if (typeof cfg.examples === "string") { examples.value = cfg.examples; setLS("dsi_examples", examples.value); }
+      renderQuickTasks(); renderTeamAdds(); updatePreview();
+    }catch(e){ alert("Import invalide: "+e.message); }
+  });
+
+  // Initial preview
+  updatePreview();
+});
+</script>
+</body>
+</html>
+
