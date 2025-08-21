@@ -1,583 +1,770 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <title>Prompt Builder — DSI</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .card { background:white; border-radius:1rem; box-shadow: 0 6px 20px rgba(0,0,0,.06); padding:1rem; }
-    .btn { border-radius:1rem; padding:.5rem 1rem; background:#4f46e5; color:white; }
-    .btn-ghost { border-radius:1rem; padding:.5rem 1rem; background:white; border:1px solid #e5e7eb; }
-    .chip { display:inline-flex; align-items:center; gap:.25rem; border:1px solid #e5e7eb; border-radius:9999px; padding:.25rem .75rem; background:#f9fafb; font-size:.875rem }
-  </style>
+    <meta charset="utf-8" />
+    <title>Prompt Builder — DSI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    borderRadius: {
+                        'card': '1rem',
+                        'btn': '1rem',
+                    },
+                }
+            },
+            plugins: [],
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer components {
+            .card { @apply bg-white rounded-card shadow-md p-4; }
+            .btn { @apply rounded-btn px-4 py-2 bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors; }
+            .btn-ghost { @apply rounded-btn px-4 py-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors; }
+            .chip { @apply inline-flex items-center gap-1 border border-gray-200 rounded-full px-3 py-1 bg-gray-50 text-sm; }
+            .form-input { @apply w-full rounded-btn border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500; }
+            .modal-overlay { @apply fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50; }
+            .modal-content { @apply bg-white rounded-lg p-6 max-w-sm w-full shadow-lg; }
+        }
+    </style>
 </head>
-<body class="bg-gray-50">
-  <div class="min-h-screen w-full py-8">
-    <div class="mx-auto max-w-6xl px-4">
-      <h1 class="text-3xl font-semibold mb-6">Assistant de création de prompt — DSI</h1>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="space-y-4">
+<body class="bg-gray-50 font-sans text-gray-800 transition-colors duration-300">
 
-          <div class="card">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Domaine (présélection)</label>
-                <div class="flex gap-2">
-                  <select id="domain" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"></select>
-                  <button id="applyDomain" class="btn-ghost">Appliquer</button>
+    <div class="min-h-screen w-full py-8">
+        <div class="mx-auto max-w-6xl px-4">
+            <div class="flex items-center mb-6 gap-4">
+                <div class="relative w-16 h-16" id="logo-container">
+                    <img id="logo-preview" class="w-full h-full object-contain" src="" alt="Logo" />
+                    <button id="remove-logo" class="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full text-xs hidden" title="Supprimer le logo.">✕</button>
                 </div>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Format de sortie</label>
-                <select id="format" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"></select>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Niveau de détail</label>
-                <select id="detail" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"></select>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Langue</label>
-                <select id="lang" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"></select>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Ton</label>
-                <select id="tone" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"></select>
-              </div>
+                <h1 id="main-title" class="text-3xl font-semibold">Assistant de création de prompt — DSI</h1>
             </div>
-          </div>
+            <div id="main-content" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-          <div class="card">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Rôle</label>
-            <select id="role" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 mb-3"></select>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-              <div class="md:col-span-2">
-                <input id="newRole" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Ajouter un rôle personnalisé" />
-              </div>
-              <button id="addRole" class="btn-ghost">+ Ajouter</button>
+                <div class="space-y-4">
+
+                    <div class="card">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Domaine (présélection)</label>
+                                <div class="flex gap-2">
+                                    <select id="domain" class="form-input" title="Choisissez un domaine pour prérégler la tâche et les options."></select>
+                                    <button id="applyDomain" class="btn-ghost whitespace-nowrap" title="Appliquer les préréglages du domaine sélectionné.">Appliquer</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Format de sortie</label>
+                                <select id="format" class="form-input" title="Définit la structure de la réponse de l'IA (plan, tableau, etc.)."></select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Niveau de détail</label>
+                                <select id="detail" class="form-input" title="Contrôle la profondeur de la réponse (synthèse, standard, exhaustif)."></select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Langue</label>
+                                <select id="lang" class="form-input" title="Spécifie la langue de la réponse."></select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Ton</label>
+                                <select id="tone" class="form-input" title="Définit le style d'écriture de l'IA."></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Rôle</label>
+                        <select id="role" class="form-input mb-3" title="Assignez un rôle à l'IA pour qu'elle adopte une expertise spécifique."></select>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                            <div class="md:col-span-2">
+                                <input id="newRole" class="form-input" placeholder="Ajouter un rôle personnalisé" title="Entrez un rôle personnalisé, comme 'Architecte d'entreprise' ou 'Manager des opérations IT'.">
+                            </div>
+                            <button id="addRole" class="btn-ghost" title="Ajouter le rôle personnalisé à la liste déroulante.">+ Ajouter</button>
+                        </div>
+                        <div id="rolesChips" class="mt-3 flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <div class="card">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tâche (objectif principal)</label>
+                        <div id="quickTasks" class="flex flex-wrap gap-2 mb-2"></div>
+                        <textarea id="task" class="form-input min-h-[100px]" placeholder="Ex: Rédiger une politique de sécurité SI adaptée à une PME" title="Décrivez clairement et précisément la tâche à accomplir par l'IA."></textarea>
+                    </div>
+
+                    <div class="card">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Entreprise</label>
+                                <input id="company" class="form-input" placeholder="Ex: PME de 120 personnes, France" title="Décrivez votre organisation pour un contexte pertinent.">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Secteur</label>
+                                <input id="sector" class="form-input" placeholder="Ex: Services B2B" title="Spécifiez le domaine d'activité de l'entreprise.">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Audience</label>
+                                <input id="audience" class="form-input" placeholder="Ex: Comité de direction et équipes IT" title="À qui s'adresse le document ou la réponse ?">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Objectifs</label>
+                                <input id="goals" class="form-input" placeholder="Ex: Livrable exploitable dès la première version" title="Décrivez le résultat attendu et les objectifs à atteindre.">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Contraintes</label>
+                                <input id="constraints" class="form-input" placeholder="Ex: Budget limité, conformité RGPD, ressources IT réduites" title="Indiquez les limitations ou les conditions à respecter.">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Échéance</label>
+                                <input id="deadline" class="form-input" placeholder="Ex: 2 semaines" title="Spécifiez la date limite pour la réalisation de la tâche.">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Mode équipes (adapter au public)</label>
+                            <label class="flex items-center gap-2">
+                                <input id="teamMode" type="checkbox" class="h-4 w-4" checked title="Activez pour adapter le prompt au profil de l'équipe sélectionnée.">
+                                <span class="text-sm text-gray-700">Activé</span>
+                            </label>
+                        </div>
+                        <div id="teamSection" class="mt-3">
+                            <select id="team" class="form-input mb-2" title="Sélectionnez le profil de l'équipe pour adapter le ton et les instructions."></select>
+                            <ul id="teamAdds" class="list-disc list-inside text-sm text-gray-600"></ul>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Critères & sections à inclure</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <label class="flex items-center gap-2"><input id="risks" type="checkbox" class="h-4 w-4" checked title="Demande à l'IA d'inclure une section sur les risques potentiels."/> <span>Inclure Risques</span></label>
+                            <label class="flex items-center gap-2"><input id="costs" type="checkbox" class="h-4 w-4" checked title="Demande une estimation des coûts ou du coût total de possession (TCO)."/> <span>Inclure Coûts/TCO</span></label>
+                            <label class="flex items-center gap-2"><input id="kpi" type="checkbox" class="h-4 w-4" checked title="Demande à l'IA de proposer des indicateurs de performance (KPI)."/> <span>Inclure KPI</span></label>
+                            <label class="flex items-center gap-2"><input id="deps" type="checkbox" class="h-4 w-4" checked title="Demande de lister les dépendances et prérequis nécessaires."/> <span>Inclure Dépendances</span></label>
+                            <label class="flex items-center gap-2"><input id="limits" type="checkbox" class="h-4 w-4" checked title="Demande d'expliciter les hypothèses et les limites du document."/> <span>Inclure Hypothèses/Limites</span></label>
+                            <label class="flex items-center gap-2"><input id="sources" type="checkbox" class="h-4 w-4" title="Demande à l'IA de citer les sources ou références qu'elle a utilisées."/> <span>Demander Sources</span></label>
+                            <label class="flex items-center gap-2"><input id="allowUnknown" type="checkbox" class="h-4 w-4" checked title="Indique à l'IA de répondre 'Je ne sais pas' plutôt que d'inventer des informations."/> <span>Autoriser “Je ne sais pas”</span></label>
+                            <label class="flex items-center gap-2"><input id="listUnknowns" type="checkbox" class="h-4 w-4" checked title="Demande à l'IA de lister les informations qu'il lui manque pour être plus précis."/> <span>Lister Inconnues/Questions</span></label>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Exemples (few‑shot) — optionnel</label>
+                        <textarea id="examples" class="form-input min-h-[100px]" placeholder="Exemple 1:\n— Contexte: PME B2B\n— Sortie: plan en 5 sections\n\nExemple 2:\n— …" title="Fournissez des exemples de prompts et de réponses attendues pour guider l'IA."></textarea>
+                    </div>
+
+                    <div class="card">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Critères d’acceptation</label>
+                        <textarea id="acceptance" class="form-input min-h-[100px]" placeholder="Ex: Couverture complète, cohérence, actionnable, conforme RGPD, pas d’invention." title="Définissez les critères de qualité que le résultat de l'IA doit respecter."></textarea>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        <button id="copyBtn" class="btn flex items-center gap-2" title="Copie le prompt généré dans le presse-papiers.">Copier le prompt</button>
+                        <button id="exportBtn" class="btn-ghost flex items-center gap-2" title="Exporte la configuration actuelle au format JSON.">Exporter config</button>
+                        <label class="inline-flex items-center gap-2 cursor-pointer btn-ghost" title="Importe une configuration depuis un fichier JSON.">
+                            Importer config <input id="importFile" type="file" accept="application/json" class="hidden" />
+                        </label>
+                        <button id="settingsBtn" class="btn-ghost flex items-center gap-2" title="Ouvrir les paramètres d'apparence et de personnalisation des menus.">Paramètres</button>
+                    </div>
+
+                </div>
+
+                <div class="space-y-4">
+                    <div class="card">
+                        <div class="flex items-center justify-between mb-2">
+                            <h2 class="text-lg font-medium">Aperçu du prompt généré</h2>
+                            <span id="copiedBadge" class="text-green-600 text-sm hidden">Copié ✓</span>
+                        </div>
+                        <pre id="preview" class="whitespace-pre-wrap text-sm bg-gray-50 rounded-xl p-4 border border-gray-200 max-h-[70vh] overflow-auto"></pre>
+                    </div>
+
+                    <div class="card">
+                        <p class="text-sm text-gray-500">Astuce : collez ce prompt dans votre outil d’IA. Les balises &lt;contexte&gt;, &lt;instructions&gt;, &lt;exemples&gt; et le bloc ```tache facilitent une interprétation fiable. Utilisez l’export JSON pour partager vos presets avec d’autres DSI.</p>
+                    </div>
+                </div>
             </div>
-            <div id="rolesChips" class="mt-3 flex flex-wrap gap-2"></div>
-          </div>
 
-          <div class="card">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Tâche (objectif principal)</label>
-            <div id="quickTasks" class="flex flex-wrap gap-2 mb-2"></div>
-            <textarea id="task" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 min-h-[100px]" placeholder="Ex: Rédiger une politique de sécurité SI adaptée à une PME"></textarea>
-          </div>
+            <div id="settings-panel" class="hidden mt-6">
+                <div class="card">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-medium">Gestion des options personnalisées</h2>
+                        <button id="closeSettingsBtn" class="text-gray-400 hover:text-gray-700 transition-colors" title="Fermer les paramètres.">✕</button>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="space-y-4">
+                            <h3 class="font-medium text-gray-700">Apparence</h3>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Couleur de fond</label>
+                                <input type="color" id="bgColor" class="w-16 h-10 p-1 border rounded-lg cursor-pointer" title="Change la couleur de fond de la page.">
+                                <span class="text-sm text-gray-500 ml-2">ou</span>
+                                <button id="resetBgColor" class="btn-ghost text-sm" title="Réinitialise la couleur de fond à la valeur par défaut.">Réinitialiser</button>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Image de fond</label>
+                                <div class="flex gap-2 items-center">
+                                    <label class="btn-ghost cursor-pointer text-sm" title="Sélectionnez une image pour l'utiliser comme fond d'écran.">
+                                        Choisir un fichier
+                                        <input type="file" id="bgImageFile" accept="image/*" class="hidden" />
+                                    </label>
+                                    <button id="removeBgImage" class="btn-ghost text-sm hidden" title="Supprime l'image de fond actuelle.">Supprimer</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Couleur du titre</label>
+                                <input type="color" id="titleColor" class="w-16 h-10 p-1 border rounded-lg cursor-pointer" title="Change la couleur du titre principal.">
+                                <button id="resetTitleColor" class="btn-ghost text-sm" title="Réinitialise la couleur du titre à la valeur par défaut.">Réinitialiser</button>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Logo</label>
+                                <div class="flex gap-2 items-center">
+                                    <label class="btn-ghost cursor-pointer text-sm" title="Télécharger un logo à afficher à côté du titre.">
+                                        Choisir un fichier
+                                        <input type="file" id="logoFile" accept="image/*" class="hidden" />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
 
-          <div class="card">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Entreprise</label>
-                <input id="company" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" value="PME de 120 personnes, France"/>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Secteur</label>
-                <input id="sector" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" value="Services B2B"/>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Audience</label>
-                <input id="audience" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" value="Comité de direction et équipes IT"/>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Objectifs</label>
-                <input id="goals" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" value="Livrable exploitable dès la première version"/>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Contraintes</label>
-                <input id="constraints" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" value="Budget limité, conformité RGPD, ressources IT réduites"/>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Échéance</label>
-                <input id="deadline" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" value="2 semaines"/>
-              </div>
+                        <hr/>
+
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Formats de sortie</label>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                    <div class="md:col-span-2">
+                                        <input data-type="format" class="form-input" placeholder="Ajouter un format (ex: 'Compte-rendu')" title="Ajoutez de nouveaux formats de sortie au menu déroulant 'Format de sortie'."/>
+                                    </div>
+                                    <button data-add="format" class="btn-ghost" title="Ajouter ce format.">+ Ajouter</button>
+                                </div>
+                                <div id="formatChips" class="mt-3 flex flex-wrap gap-2"></div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Niveaux de détail</label>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                    <div class="md:col-span-2">
+                                        <input data-type="detail" class="form-input" placeholder="Ajouter un niveau (ex: 'Très précis')" title="Ajoutez de nouveaux niveaux de détail au menu déroulant 'Niveau de détail'."/>
+                                    </div>
+                                    <button data-add="detail" class="btn-ghost" title="Ajouter ce niveau de détail.">+ Ajouter</button>
+                                </div>
+                                <div id="detailChips" class="mt-3 flex flex-wrap gap-2"></div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tons</label>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                    <div class="md:col-span-2">
+                                        <input data-type="tone" class="form-input" placeholder="Ajouter un ton (ex: 'Ambitieux')" title="Ajoutez de nouveaux tons d'écriture au menu déroulant 'Ton'."/>
+                                    </div>
+                                    <button data-add="tone" class="btn-ghost" title="Ajouter ce ton.">+ Ajouter</button>
+                                </div>
+                                <div id="toneChips" class="mt-3 flex flex-wrap gap-2"></div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Langues</label>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                    <div class="md:col-span-2">
+                                        <input data-type="lang" class="form-input" placeholder="Ajouter une langue (ex: 'Espagnol')" title="Ajoutez de nouvelles langues au menu déroulant 'Langue'."/>
+                                    </div>
+                                    <button data-add="lang" class="btn-ghost" title="Ajouter cette langue.">+ Ajouter</button>
+                                </div>
+                                <div id="langChips" class="mt-3 flex flex-wrap gap-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-
-          <div class="card">
-            <div class="flex items-center justify-between">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Mode équipes (adapter au public)</label>
-              <label class="flex items-center gap-2">
-                <input id="teamMode" type="checkbox" class="h-4 w-4" checked />
-                <span class="text-sm text-gray-700">Activé</span>
-              </label>
-            </div>
-            <div id="teamSection" class="mt-3">
-              <select id="team" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 mb-2"></select>
-              <ul id="teamAdds" class="list-disc list-inside text-sm text-gray-600"></ul>
-            </div>
-          </div>
-
-          <div class="card">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Critères & sections à inclure</label>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <label class="flex items-center gap-2"><input id="risks" type="checkbox" class="h-4 w-4" checked/> <span>Inclure Risques</span></label>
-              <label class="flex items-center gap-2"><input id="costs" type="checkbox" class="h-4 w-4" checked/> <span>Inclure Coûts/TCO</span></label>
-              <label class="flex items-center gap-2"><input id="kpi" type="checkbox" class="h-4 w-4" checked/> <span>Inclure KPI</span></label>
-              <label class="flex items-center gap-2"><input id="deps" type="checkbox" class="h-4 w-4" checked/> <span>Inclure Dépendances</span></label>
-              <label class="flex items-center gap-2"><input id="limits" type="checkbox" class="h-4 w-4" checked/> <span>Inclure Hypothèses/Limites</span></label>
-              <label class="flex items-center gap-2"><input id="sources" type="checkbox" class="h-4 w-4"/> <span>Demander Sources</span></label>
-              <label class="flex items-center gap-2"><input id="allowUnknown" type="checkbox" class="h-4 w-4" checked/> <span>Autoriser “Je ne sais pas”</span></label>
-              <label class="flex items-center gap-2"><input id="listUnknowns" type="checkbox" class="h-4 w-4" checked/> <span>Lister Inconnues/Questions</span></label>
-            </div>
-          </div>
-
-          <div class="card">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Exemples (few‑shot) — optionnel</label>
-            <textarea id="examples" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 min-h-[100px]" placeholder="Exemple 1:\n— Contexte: PME B2B\n— Sortie: plan en 5 sections\n\nExemple 2:\n— …"></textarea>
-          </div>
-
-          <div class="card">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Critères d’acceptation</label>
-            <input id="acceptance" class="w-full rounded-2xl border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" value="Couverture complète, cohérence, actionnable, conforme RGPD, pas d’invention."/>
-          </div>
-
-          <div class="flex flex-wrap gap-2">
-            <button id="copyBtn" class="btn flex items-center gap-2">Copier le prompt</button>
-            <button id="resetBtn" class="btn-ghost flex items-center gap-2">Réinitialiser</button>
-            <button id="exportBtn" class="btn-ghost flex items-center gap-2">Exporter config</button>
-            <label class="inline-flex items-center gap-2 cursor-pointer btn-ghost">
-              Importer config <input id="importFile" type="file" accept="application/json" class="hidden"/>
-            </label>
-          </div>
 
         </div>
-
-        <div class="space-y-4">
-          <div class="card">
-            <div class="flex items-center justify-between mb-2">
-              <h2 class="text-lg font-medium">Aperçu du prompt généré</h2>
-              <span id="copiedBadge" class="text-green-600 text-sm hidden">Copié ✓</span>
-            </div>
-            <pre id="preview" class="whitespace-pre-wrap text-sm bg-gray-50 rounded-xl p-4 border max-h-[70vh] overflow-auto"></pre>
-          </div>
-
-          <div class="card">
-            <p class="text-sm text-gray-500">Astuce : collez ce prompt dans votre outil d’IA. Les balises &lt;contexte&gt;, &lt;instructions&gt;, &lt;exemples&gt; et le bloc ```tache facilitent une interprétation fiable. Utilisez l’export JSON pour partager vos presets avec d’autres DSI.</p>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
 
-<script>
-// --- Data ---
-const outputFormats = [
-  { value: "plan", label: "Plan numéroté" },
-  { value: "table", label: "Tableau Markdown" },
-  { value: "json", label: "JSON schema" },
-  { value: "doc", label: "Modèle de document" },
-  { value: "email", label: "Email professionnel" },
-  { value: "report", label: "Compte‑rendu / Synthèse" },
-];
-const detailLevels = [
-  { value: "synthese", label: "Synthèse" },
-  { value: "standard", label: "Standard" },
-  { value: "exhaustif", label: "Exhaustif" },
-];
-const tones = [
-  { value: "pro", label: "Professionnel" },
-  { value: "pedago", label: "Pédagogique" },
-  { value: "concis", label: "Concis" },
-  { value: "persuasif", label: "Persuasif" },
-];
-const languages = [
-  { value: "fr", label: "Français" },
-  { value: "en", label: "English" },
-];
+    <div id="modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 id="modal-title" class="text-xl font-semibold mb-4"></h3>
+            <p id="modal-text" class="text-gray-600 mb-6"></p>
+            <div class="flex justify-end gap-2">
+                <button id="modal-cancel" class="btn-ghost">Annuler</button>
+                <button id="modal-confirm" class="btn">Confirmer</button>
+            </div>
+        </div>
+    </div>
 
-const defaultRoles = [
-  "Expert cybersécurité PME","Consultant outillage SI","Architecte cloud","Data governance lead","SRE / Incident manager",
-  "PMO SI","Juriste IT / RGPD","CTO coach","FinOps","Responsable ITSM / ITAM"
-];
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
 
-const teamProfiles = [
-  { value: "comex", label: "COMEX", adds: [
-    "Commencer par un résumé exécutif en 5 puces (impacts, coûts, risques, ROI, décisions).",
-    "Limiter le jargon technique et mettre en avant les enjeux business.",
-  ], tone: "pro", detail: "synthese" },
-  { value: "finance", label: "Direction Finance", adds: [
-    "Mettre en avant TCO, ROI, OPEX/CAPEX, et risques de conformité.",
-  ], tone: "pro", detail: "standard" },
-  { value: "rh", label: "RH", adds: [
-    "Mettre l’accent sur conduite du changement, formation et impacts humains.",
-  ], tone: "pedago", detail: "standard" },
-  { value: "ops", label: "Opérations / Production", adds: [
-    "Préciser la continuité de service, RTO/RPO, et procédures opérationnelles.",
-  ], tone: "pro", detail: "exhaustif" },
-  { value: "it", label: "Équipe IT", adds: [
-    "Inclure détails techniques, prérequis, dépendances et check‑lists.",
-  ], tone: "pro", detail: "exhaustif" },
-  { value: "juridique", label: "Juridique / RGPD", adds: [
-    "Citer bases légales applicables, responsabilités et preuves de conformité.",
-  ], tone: "pro", detail: "standard" },
-];
+            // --- Configuration des données ---
+            const DATA = {
+                outputFormats: [
+                    { value: "plan", label: "Plan numéroté" }, { value: "table", label: "Tableau Markdown" },
+                    { value: "json", label: "JSON schema" }, { value: "doc", label: "Modèle de document" },
+                    { value: "email", label: "Email professionnel" }, { value: "report", label: "Compte‑rendu / Synthèse" },
+                ],
+                detailLevels: [
+                    { value: "synthese", label: "Synthèse" }, { value: "standard", label: "Standard" }, { value: "exhaustif", label: "Exhaustif" },
+                ],
+                tones: [
+                    { value: "pro", label: "Professionnel" }, { value: "pedago", label: "Pédagogique" },
+                    { value: "concis", label: "Concis" }, { value: "persuasif", label: "Persuasif" },
+                ],
+                languages: [
+                    { value: "fr", label: "Français" }, { value: "en", label: "English" },
+                ],
+                defaultRoles: [
+                    "Expert cybersécurité PME", "Consultant outillage SI", "Architecte cloud", "Data governance lead",
+                    "SRE / Incident manager", "PMO SI", "Juriste IT / RGPD", "CTO coach", "FinOps",
+                    "Responsable ITSM / ITAM",
+                ],
+                teamProfiles: [
+                    { value: "comex", label: "COMEX", adds: ["Commencer par un résumé exécutif en 5 puces.", "Limiter le jargon technique et mettre en avant les enjeux business."], tone: "pro", detail: "synthese" },
+                    { value: "finance", label: "Direction Finance", adds: ["Mettre en avant TCO, ROI, OPEX/CAPEX, et risques de conformité."], tone: "pro", detail: "standard" },
+                    { value: "rh", label: "RH", adds: ["Mettre l’accent sur conduite du changement, formation et impacts humains."], tone: "pedago", detail: "standard" },
+                    { value: "ops", label: "Opérations / Production", adds: ["Préciser la continuité de service, RTO/RPO, et procédures opérationnelles."], tone: "pro", detail: "exhaustif" },
+                    { value: "it", label: "Équipe IT", adds: ["Inclure détails techniques, prérequis, dépendances et check‑lists."], tone: "pro", detail: "exhaustif" },
+                    { value: "juridique", label: "Juridique / RGPD", adds: ["Citer bases légales applicables, responsabilités et preuves de conformité."], tone: "pro", detail: "standard" },
+                ],
+                domainPresets: {
+                    "Cybersécurité": { tasks: ["Rédiger une politique de sécurité SI adaptée à une PME", "Concevoir un plan de sensibilisation sécurité sur 6 mois"], toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: true } },
+                    "ITSM / ITAM": { tasks: ["Comparer 3 solutions ITSM pour une PME (tableau + reco)", "Modéliser un processus de gestion des incidents et SLAs"], toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: false } },
+                    "RGPD / Data Governance": { tasks: ["Produire une politique de rétention et d’archivage (RGPD)", "Construire un registre des traitements priorisé pour une PME"], toggles: { risks: true, costs: false, kpi: true, deps: true, limits: true, sources: true } },
+                    "Cloud / FinOps": { tasks: ["Établir un cadre FinOps (gouvernance, budgets, alertes, tagging)", "Comparer 3 options d’hébergement (on‑prem, IaaS, PaaS)"], toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: false } },
+                    "M365 / Collaboration": { tasks: ["Définir une gouvernance M365 (Teams/SharePoint) pour PME", "Rédiger une politique de classification et DLP"], toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: false } },
+                    "Roadmap & KPI": { tasks: ["Proposer une roadmap trimestrielle SI + KPI", "Élaborer un tableau de bord de la disponibilité et sécurité"], toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: false } }
+                }
+            };
 
-const domainPresets = {
-  "Cybersécurité": {
-    tasks: [
-      "Rédiger une politique de sécurité SI adaptée à une PME",
-      "Concevoir un plan de sensibilisation sécurité sur 6 mois",
-      "Élaborer une procédure de gestion des vulnérabilités (EDR/patch)"
-    ],
-    toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: true }
-  },
-  "ITSM / ITAM": {
-    tasks: [
-      "Comparer 3 solutions ITSM pour une PME (tableau + reco)",
-      "Modéliser un processus de gestion des incidents et SLAs",
-      "Définir une CMDB minimale et procédures d’audit"
-    ],
-    toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: false }
-  },
-  "RGPD / Data Governance": {
-    tasks: [
-      "Produire une politique de rétention et d’archivage (RGPD)",
-      "Construire un registre des traitements priorisé pour une PME",
-      "Définir un plan de minimisation des données et DPIA quand nécessaire"
-    ],
-    toggles: { risks: true, costs: false, kpi: true, deps: true, limits: true, sources: true }
-  },
-  "Cloud / FinOps": {
-    tasks: [
-      "Établir un cadre FinOps (gouvernance, budgets, alertes, tagging)",
-      "Comparer 3 options d’hébergement (on‑prem, IaaS, PaaS) pour une appli",
-      "Mettre en place un atterrissage cloud (landing zone) minimal"
-    ],
-    toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: false }
-  },
-  "M365 / Collaboration": {
-    tasks: [
-      "Définir une gouvernance M365 (Teams/SharePoint) pour PME",
-      "Rédiger une politique de classification et DLP",
-      "Plan de migration fileserver vers SharePoint/OneDrive"
-    ],
-    toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: false }
-  },
-  "Roadmap & KPI": {
-    tasks: [
-      "Proposer une roadmap trimestrielle SI + KPI",
-      "Élaborer un tableau de bord de la disponibilité et sécurité",
-      "Définir des OKR SI alignés stratégie d’entreprise"
-    ],
-    toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: false }
-  }
-};
+            // --- Sélecteurs centralisés ---
+            const els = {
+                domain: document.getElementById("domain"), format: document.getElementById("format"), detail: document.getElementById("detail"),
+                lang: document.getElementById("lang"), tone: document.getElementById("tone"), role: document.getElementById("role"),
+                newRole: document.getElementById("newRole"), rolesChips: document.getElementById("rolesChips"), addRole: document.getElementById("addRole"),
+                task: document.getElementById("task"), quickTasks: document.getElementById("quickTasks"),
+                company: document.getElementById("company"), sector: document.getElementById("sector"), audience: document.getElementById("audience"),
+                goals: document.getElementById("goals"), constraints: document.getElementById("constraints"), deadline: document.getElementById("deadline"),
+                teamMode: document.getElementById("teamMode"), team: document.getElementById("team"), teamAdds: document.getElementById("teamAdds"),
+                teamSection: document.getElementById("teamSection"), risks: document.getElementById("risks"), costs: document.getElementById("costs"),
+                kpi: document.getElementById("kpi"), deps: document.getElementById("deps"), limits: document.getElementById("limits"),
+                sources: document.getElementById("sources"), allowUnknown: document.getElementById("allowUnknown"), listUnknowns: document.getElementById("listUnknowns"),
+                examples: document.getElementById("examples"), acceptance: document.getElementById("acceptance"), preview: document.getElementById("preview"),
+                copyBtn: document.getElementById("copyBtn"), copiedBadge: document.getElementById("copiedBadge"), exportBtn: document.getElementById("exportBtn"),
+                importFile: document.getElementById("importFile"), applyDomain: document.getElementById("applyDomain"), settingsBtn: document.getElementById("settingsBtn"),
+                settingsPanel: document.getElementById("settings-panel"), mainContent: document.getElementById("main-content"),
+                closeSettingsBtn: document.getElementById("closeSettingsBtn"), bgColor: document.getElementById("bgColor"),
+                bgImageFile: document.getElementById("bgImageFile"), removeBgImage: document.getElementById("removeBgImage"),
+                resetBgColor: document.getElementById("resetBgColor"), titleColor: document.getElementById("titleColor"),
+                resetTitleColor: document.getElementById("resetTitleColor"), mainTitle: document.getElementById("main-title"),
+                logoFile: document.getElementById("logoFile"), logoPreview: document.getElementById("logo-preview"),
+                logoContainer: document.getElementById("logo-container"), removeLogo: document.getElementById("remove-logo"),
+                modalOverlay: document.getElementById("modal-overlay"), modalTitle: document.getElementById("modal-title"),
+                modalText: document.getElementById("modal-text"), modalConfirm: document.getElementById("modal-confirm"),
+                modalCancel: document.getElementById("modal-cancel")
+            };
 
-// --- State persisted in localStorage ---
-function getLS(key, def){ try { const v = localStorage.getItem(key); return v?JSON.parse(v):def; } catch { return def; } }
-function setLS(key, v){ try { localStorage.setItem(key, JSON.stringify(v)); } catch {} }
+            // --- Fonctions utilitaires ---
+            const getLS = (key, def) => { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch { return def; } };
+            const setLS = (key, v) => { try { localStorage.setItem(key, JSON.stringify(v)); } catch {} };
 
-// Populate selects
-function fillOptions(sel, options) {
-  sel.innerHTML = "";
-  options.forEach(o=>{
-    const opt = document.createElement("option");
-    opt.value = o.value; opt.textContent = o.label;
-    sel.appendChild(opt);
-  });
-}
+            const fillOptions = (sel, options) => {
+                sel.innerHTML = options.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+            };
 
-// DOM ready
-document.addEventListener("DOMContentLoaded", () => {
-  const el = (id) => document.getElementById(id);
+            const loadValue = (elem, key, def) => {
+                const value = getLS(key, def);
+                if (elem) {
+                    if (elem.type === "checkbox") {
+                        elem.checked = value;
+                    } else {
+                        elem.value = value;
+                    }
+                }
+            };
 
-  // Elements
-  const domain = el("domain");
-  const format = el("format");
-  const detail = el("detail");
-  const lang = el("lang");
-  const tone = el("tone");
-  const role = el("role");
-  const newRole = el("newRole");
-  const addRole = el("addRole");
-  const rolesChips = el("rolesChips");
+            // --- Fonctions de rendu et logique métier ---
 
-  const task = el("task");
-  const quickTasks = el("quickTasks");
+            const createOptionManager = (type, defaultData, selectEl, inputEl, chipsEl, addBtnEl) => {
+                let options = getLS(`dsi_custom_${type}`, []);
+                const allOptions = () => [...defaultData, ...options.map(o => ({ value: o, label: o }))];
 
-  const company = el("company");
-  const sector = el("sector");
-  const audience = el("audience");
-  const goals = el("goals");
-  const constraints = el("constraints");
-  const deadline = el("deadline");
+                const refresh = () => {
+                    fillOptions(selectEl, allOptions());
+                    chipsEl.innerHTML = options.map(o =>
+                        `<span class="chip">${o} <button title="Supprimer" data-option="${o}" class="text-gray-400 hover:text-red-600 transition-colors">✕</button></span>`
+                    ).join('');
 
-  const teamMode = el("teamMode");
-  const team = el("team");
-  const teamAdds = el("teamAdds");
-  const teamSection = el("teamSection");
+                    chipsEl.querySelectorAll("button[data-option]").forEach(btn => {
+                        btn.addEventListener("click", () => {
+                            const optionToRemove = btn.getAttribute("data-option");
+                            options = options.filter(o => o !== optionToRemove);
+                            setLS(`dsi_custom_${type}`, options);
+                            refresh();
+                            updatePreview();
+                        });
+                    });
+                };
 
-  const risks = el("risks");
-  const costs = el("costs");
-  const kpi = el("kpi");
-  const deps = el("deps");
-  const limits = el("limits");
-  const sources = el("sources");
-  const allowUnknown = el("allowUnknown");
-  const listUnknowns = el("listUnknowns");
+                const add = () => {
+                    const newOptionText = inputEl.value.trim();
+                    if (newOptionText && !allOptions().some(o => o.value === newOptionText)) {
+                        options.push(newOptionText);
+                        setLS(`dsi_custom_${type}`, options);
+                        inputEl.value = "";
+                        refresh();
+                        updatePreview();
+                    }
+                };
 
-  const examples = el("examples");
-  const acceptance = el("acceptance");
+                if (addBtnEl) {
+                    addBtnEl.addEventListener("click", add);
+                    inputEl.addEventListener("keydown", (e) => {
+                        if (e.key === "Enter") {
+                            e.preventDefault();
+                            add();
+                        }
+                    });
+                }
 
-  const preview = el("preview");
-  const copyBtn = el("copyBtn");
-  const copiedBadge = el("copiedBadge");
-  const resetBtn = el("resetBtn");
-  const exportBtn = el("exportBtn");
-  const importFile = el("importFile");
-  const applyDomain = el("applyDomain");
+                return { refresh, add };
+            };
 
-  // Init options
-  fillOptions(domain, Object.keys(domainPresets).map(k=>({value:k,label:k})));
-  fillOptions(format, outputFormats);
-  fillOptions(detail, detailLevels);
-  fillOptions(lang, languages);
-  fillOptions(tone, tones);
-  fillOptions(team, teamProfiles.map(p=>({value:p.value,label:p.label})));
+            const roleManager = createOptionManager('role', DATA.defaultRoles.map(r => ({ value: r, label: r })), els.role, els.newRole, els.rolesChips, els.addRole);
+            const formatManager = createOptionManager('format', DATA.outputFormats, els.format, document.querySelector('input[data-type="format"]'), document.getElementById('formatChips'), document.querySelector('button[data-add="format"]'));
+            const detailManager = createOptionManager('detail', DATA.detailLevels, els.detail, document.querySelector('input[data-type="detail"]'), document.getElementById('detailChips'), document.querySelector('button[data-add="detail"]'));
+            const toneManager = createOptionManager('tone', DATA.tones, els.tone, document.querySelector('input[data-type="tone"]'), document.getElementById('toneChips'), document.querySelector('button[data-add="tone"]'));
+            const langManager = createOptionManager('lang', DATA.languages, els.lang, document.querySelector('input[data-type="lang"]'), document.getElementById('langChips'), document.querySelector('button[data-add="lang"]'));
 
-  // Roles (customizable)
-  let roles = getLS("dsi_roles", defaultRoles.slice());
-  function refreshRoles() {
-    role.innerHTML = "";
-    roles.forEach(r=>{
-      const opt = document.createElement("option");
-      opt.value = r; opt.textContent = r; role.appendChild(opt);
-    });
-    // chips
-    rolesChips.innerHTML = "";
-    roles.forEach(r=>{
-      const span = document.createElement("span");
-      span.className = "chip";
-      span.innerHTML = `${r} <button title="Supprimer" data-role="${r}" class="text-gray-400 hover:text-red-600">✕</button>`;
-      rolesChips.appendChild(span);
-    });
-    // chip delete
-    rolesChips.querySelectorAll("button[data-role]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        const r = btn.getAttribute("data-role");
-        roles = roles.filter(x=>x!==r);
-        setLS("dsi_roles", roles);
-        if (role.value === r && roles.length) role.value = roles[0];
-        refreshRoles(); updatePreview();
-      });
-    });
-  }
-  refreshRoles();
+            const renderQuickTasks = () => {
+                const tasks = DATA.domainPresets[els.domain.value]?.tasks || [];
+                els.quickTasks.innerHTML = tasks.map(qt =>
+                    `<button class="text-xs px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors">${qt}</button>`
+                ).join('');
+                els.quickTasks.querySelectorAll('button').forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        els.task.value = btn.textContent;
+                        setLS("dsi_task", els.task.value);
+                        updatePreview();
+                    });
+                });
+            };
 
-  addRole.addEventListener("click", ()=>{
-    const r = newRole.value.trim();
-    if (!r) return;
-    if (!roles.includes(r)) {
-      roles.push(r); setLS("dsi_roles", roles); newRole.value = "";
-      refreshRoles(); updatePreview();
-    }
-  });
+            const renderTeamAdds = () => {
+                els.teamSection.style.display = els.teamMode.checked ? "block" : "none";
+                const profile = DATA.teamProfiles.find(p => p.value === els.team.value);
+                els.teamAdds.innerHTML = profile?.adds?.map(a => `<li>${a}</li>`).join('') || '';
+            };
 
-  // Load persisted values
-  function load(sel, key, def){ const v=getLS(key, def); sel.value=v; return v; }
-  load(domain, "dsi_domain", domain.options[0].value);
-  load(format, "dsi_format", "plan");
-  load(detail, "dsi_detail", "exhaustif");
-  load(lang, "dsi_lang", "fr");
-  load(tone, "dsi_tone", "pro");
-  role.value = getLS("dsi_role", roles[0]);
+            const assemblePrompt = () => {
+                const promptParts = [];
 
-  task.value = getLS("dsi_task", "Rédiger une politique de sécurité SI adaptée à une PME");
-  company.value = getLS("dsi_company", "PME de 120 personnes, France");
-  sector.value = getLS("dsi_sector", "Services B2B");
-  audience.value = getLS("dsi_audience", "Comité de direction et équipes IT");
-  goals.value = getLS("dsi_goals", "Livrable exploitable dès la première version");
-  constraints.value = getLS("dsi_constraints", "Budget limité, conformité RGPD, ressources IT réduites");
-  deadline.value = getLS("dsi_deadline", "2 semaines");
+                promptParts.push(`Tu es ${els.role.value}. Ta mission est de réaliser la tâche décrite en respectant strictement le format et les critères ci‑dessous.`);
 
-  teamMode.checked = getLS("dsi_teamMode", true);
-  team.value = getLS("dsi_team", team.options[0].value);
+                const instructions = [`Sortie attendue: ${els.format.options[els.format.selectedIndex]?.text}`];
+                instructions.push(`Rédige en ${els.lang.options[els.lang.selectedIndex]?.text}.`);
+                instructions.push(`Ton: ${els.tone.options[els.tone.selectedIndex]?.text}.`);
+                instructions.push(`Niveau de détail: ${els.detail.options[els.detail.selectedIndex]?.text}.`);
 
-  risks.checked = getLS("dsi_risks", true);
-  costs.checked = getLS("dsi_costs", true);
-  kpi.checked = getLS("dsi_kpi", true);
-  deps.checked = getLS("dsi_deps", true);
-  limits.checked = getLS("dsi_limits", true);
-  sources.checked = getLS("dsi_sources", false);
-  allowUnknown.checked = getLS("dsi_allowUnknown", true);
-  listUnknowns.checked = getLS("dsi_listUnknowns", true);
+                const toggleInstructions = {
+                    risks: "Inclure une section Risques.", costs: "Inclure estimation des Coûts/TCO si pertinent.",
+                    kpi: "Inclure des KPI/mesures de succès.", deps: "Mentionner les dépendances et prérequis.",
+                    limits: "Indiquer les hypothèses et limites.", sources: "Fournir des sources ou références quand pertinent.",
+                    allowUnknown: "Si une information manque, répondre 'Je ne sais pas' plutôt que d'inventer.",
+                    listUnknowns: "Lister explicitement les inconnues et les questions à poser."
+                };
+                Object.entries(toggleInstructions).forEach(([key, value]) => {
+                    if (els[key]?.checked) instructions.push(value);
+                });
 
-  examples.value = getLS("dsi_examples", "");
-  acceptance.value = getLS("dsi_acceptance", "Couverture complète, cohérence, actionnable, conforme RGPD, pas d’invention.");
+                if (els.teamMode.checked) {
+                    const profile = DATA.teamProfiles.find(p => p.value === els.team.value);
+                    if (profile) instructions.push(...profile.adds);
+                }
 
-  // Quick tasks
-  function renderQuickTasks() {
-    quickTasks.innerHTML = "";
-    const tasks = (domainPresets[domain.value] || {tasks:[]}).tasks;
-    tasks.forEach(qt=>{
-      const b = document.createElement("button");
-      b.className = "text-xs px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 hover:bg-indigo-100";
-      b.textContent = qt;
-      b.addEventListener("click", ()=>{ task.value = qt; setLS("dsi_task", task.value); updatePreview(); });
-      quickTasks.appendChild(b);
-    });
-  }
-  renderQuickTasks();
+                const context = `Entreprise: ${els.company.value}\nSecteur: ${els.sector.value}\nAudience: ${els.audience.value}${els.teamMode.checked ? ` (adapter au public: ${els.team.options[els.team.selectedIndex]?.text})` : ""}\nObjectifs: ${els.goals.value}\nContraintes: ${els.constraints.value}\nÉchéance: ${els.deadline.value}`;
+                
+                promptParts.push(`\n<contexte>\n${context}\n</contexte>`);
+                promptParts.push(`\n<instructions>\n${instructions.join('\n')}\n</instructions>`);
 
-  // Apply domain
-  applyDomain.addEventListener("click", ()=>{
-    const d = domainPresets[domain.value];
-    if (!d) return;
-    if (d.tasks[0]) { task.value = d.tasks[0]; setLS("dsi_task", task.value); }
-    risks.checked = !!d.toggles.risks;
-    costs.checked = !!d.toggles.costs;
-    kpi.checked = !!d.toggles.kpi;
-    deps.checked = !!d.toggles.deps;
-    limits.checked = !!d.toggles.limits;
-    sources.checked = !!d.toggles.sources;
-    setLS("dsi_risks", risks.checked); setLS("dsi_costs", costs.checked);
-    setLS("dsi_kpi", kpi.checked); setLS("dsi_deps", deps.checked);
-    setLS("dsi_limits", limits.checked); setLS("dsi_sources", sources.checked);
-    renderQuickTasks(); updatePreview();
-  });
+                if (els.examples.value.trim()) {
+                    promptParts.push(`\n<exemples>\n\n${els.examples.value.trim()}\n</exemples>`);
+                }
+                
+                promptParts.push(`\n<criteres_acceptation>\n${els.acceptance.value}\n</criteres_acceptation>`);
+                promptParts.push(`\n\`\`\`tache\n${els.task.value}\n\`\`\``);
 
-  // Team section render
-  function renderTeamAdds() {
-    teamSection.style.display = teamMode.checked ? "block" : "none";
-    teamAdds.innerHTML = "";
-    const obj = teamProfiles.find(t=>t.value===team.value) || teamProfiles[0];
-    (obj.adds || []).forEach(a=>{
-      const li = document.createElement("li"); li.textContent = a; teamAdds.appendChild(li);
-    });
-  }
-  renderTeamAdds();
+                return promptParts.join('\n\n');
+            };
 
-  // Assembler
-  function assemble() {
-    const roleV = role.value;
-    const langV = lang.value, toneV = tone.value, detailV = detail.value;
-    const blocks = [];
-    blocks.push(`Tu es ${roleV}. Ta mission est de réaliser la tâche décrite en respectant strictement le format et les critères ci‑dessous.`);
+            const updatePreview = () => {
+                els.preview.textContent = assemblePrompt();
+            };
 
-    const langTone = [];
-    if (langV === "fr") langTone.push("Rédige en français.");
-    if (langV === "en") langTone.push("Write in English.");
-    if (toneV === "pro") langTone.push("Ton: professionnel.");
-    if (toneV === "pedago") langTone.push("Ton: pédagogique.");
-    if (toneV === "concis") langTone.push("Ton: concis.");
-    if (toneV === "persuasif") langTone.push("Ton: persuasif.");
-    if (detailV === "synthese") langTone.push("Niveau de détail: synthèse.");
-    if (detailV === "standard") langTone.push("Niveau de détail: standard.");
-    if (detailV === "exhaustif") langTone.push("Niveau de détail: exhaustif.");
+            // --- Fonctions de personnalisation de l'apparence ---
+            const applyVisualSettings = () => {
+                const bgColor = getLS("dsi_bg_color", "#f9fafb");
+                const bgImage = getLS("dsi_bg_image", "");
+                const titleColor = getLS("dsi_title_color", "#1f2937");
+                const logo = getLS("dsi_logo", "");
 
-    const teamAddsList = [];
-    if (teamMode.checked) {
-      const obj = teamProfiles.find(t=>t.value===team.value) || teamProfiles[0];
-      teamAddsList.push(...(obj.adds||[]));
-    }
+                document.body.style.backgroundColor = bgColor;
+                document.body.style.backgroundImage = bgImage ? `url(${bgImage})` : 'none';
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundRepeat = 'no-repeat';
+                els.mainTitle.style.color = titleColor;
 
-    const context = [
-      `Entreprise: ${company.value}`,
-      `Secteur: ${sector.value}`,
-      `Audience: ${audience.value}${teamMode.checked ? ` (adapter au public: ${team.options[team.selectedIndex].text})` : ""}`,
-      `Objectifs: ${goals.value}`,
-      `Contraintes: ${constraints.value}`,
-      `Échéance: ${deadline.value}`,
-    ].join("\\n");
+                if (logo) {
+                    els.logoPreview.src = logo;
+                    els.logoContainer.classList.remove("hidden");
+                } else {
+                    els.logoPreview.src = "";
+                    els.logoContainer.classList.add("hidden");
+                }
+                els.removeLogo.classList.toggle('hidden', !logo);
+            };
 
-    const req = [];
-    if (risks.checked) req.push("Inclure une section Risques.");
-    if (costs.checked) req.push("Inclure estimation des Coûts/TCO si pertinent.");
-    if (kpi.checked) req.push("Inclure des KPI/mesures de succès.");
-    if (deps.checked) req.push("Mentionner les dépendances et prérequis.");
-    if (limits.checked) req.push("Indiquer les hypothèses et limites.");
-    if (sources.checked) req.push("Fournir des sources ou références quand pertinent.");
-    if (allowUnknown.checked) req.push("Si une information manque, répondre 'Je ne sais pas' plutôt que d'inventer.");
-    if (listUnknowns.checked) req.push("Lister explicitement les inconnues et les questions à poser.");
-    req.push(...teamAddsList);
+            // --- Gestion des pop-ups de validation ---
+            const showModal = (title, text, onConfirm) => {
+                els.modalTitle.textContent = title;
+                els.modalText.textContent = text;
+                els.modalOverlay.classList.remove("hidden");
+                els.modalConfirm.onclick = () => {
+                    els.modalOverlay.classList.add("hidden");
+                    onConfirm();
+                };
+                els.modalCancel.onclick = () => {
+                    els.modalOverlay.classList.add("hidden");
+                };
+            };
 
-    let formatText = "";
-    switch (format.value) {
-      case "plan": formatText = "Sortie attendue: plan numéroté prêt à l’emploi."; break;
-      case "table": formatText = "Sortie attendue: tableau Markdown."; break;
-      case "json": formatText = "Sortie attendue: JSON conforme au schéma demandé."; break;
-      case "doc": formatText = "Sortie attendue: modèle de document prêt à copier."; break;
-      case "email": formatText = "Sortie attendue: email professionnel prêt à envoyer."; break;
-      case "report": formatText = "Sortie attendue: compte‑rendu structuré."; break;
-    }
 
-    const exBlock = examples.value.trim() ? `\\nExemples (few‑shot):\\n\\n${examples.value.trim()}` : "";
-    const taskBlock = `Tâche:\\n\\n${task.value}`;
+            // --- Initialisation et événements ---
+            const init = () => {
+                // Remplir et gérer les options
+                roleManager.refresh();
+                formatManager.refresh();
+                detailManager.refresh();
+                toneManager.refresh();
+                langManager.refresh();
+                fillOptions(els.domain, Object.keys(DATA.domainPresets).map(k => ({ value: k, label: k })));
+                fillOptions(els.team, DATA.teamProfiles.map(p => ({ value: p.value, label: p.label })));
 
-    const final = [
-      blocks.join("\\n"),
-      "\\n<contexte>\\n" + context + "\\n</contexte>",
-      "\\n<instructions>\\n" + [formatText, ...req, ...langTone].join("\\n") + "\\n</instructions>",
-      exBlock ? "\\n<exemples>\\n" + exBlock + "\\n</exemples>" : "",
-      "\\n<criteres_acceptation>\\n" + acceptance.value + "\\n</criteres_acceptation>",
-      "\\n```tache\\n" + taskBlock + "\\n```",
-    ].filter(Boolean).join("\\n\\n");
+                // Charger les valeurs persistantes
+                const persistenceMap = {
+                    domain: "dsi_domain", format: "dsi_format", detail: "dsi_detail", lang: "dsi_lang", tone: "dsi_tone",
+                    role: "dsi_role", task: "dsi_task", company: "dsi_company", sector: "dsi_sector", audience: "dsi_audience",
+                    goals: "dsi_goals", constraints: "dsi_constraints", deadline: "dsi_deadline", teamMode: "dsi_teamMode",
+                    team: "dsi_team", risks: "dsi_risks", costs: "dsi_costs", kpi: "dsi_kpi", deps: "dsi_deps",
+                    limits: "dsi_limits", sources: "dsi_sources", allowUnknown: "dsi_allowUnknown", listUnknowns: "dsi_listUnknowns",
+                    examples: "dsi_examples", acceptance: "dsi_acceptance",
+                };
+                Object.entries(persistenceMap).forEach(([elKey, lsKey]) => {
+                    loadValue(els[elKey], lsKey, els[elKey]?.value);
+                });
+                applyVisualSettings(); // Appliquer les paramètres visuels au chargement
 
-    return final;
-  }
+                // Gérer les événements de mise à jour et de persistance
+                Object.values(els).forEach(elem => {
+                    if (elem && (elem.tagName === 'INPUT' || elem.tagName === 'SELECT' || elem.tagName === 'TEXTAREA') && !elem.hasAttribute('data-type')) {
+                        elem.addEventListener('input', () => {
+                            setLS(persistenceMap[Object.keys(els).find(key => els[key] === elem)], elem.type === 'checkbox' ? elem.checked : elem.value);
+                            updatePreview();
+                        });
+                        elem.addEventListener('change', () => { // pour les select et checkbox
+                            setLS(persistenceMap[Object.keys(els).find(key => els[key] === elem)], elem.type === 'checkbox' ? elem.checked : elem.value);
+                            updatePreview();
+                        });
+                    }
+                });
+                els.domain.addEventListener("change", renderQuickTasks);
+                els.teamMode.addEventListener("change", renderTeamAdds);
+                els.team.addEventListener("change", renderTeamAdds);
+                
+                // Événements des boutons "Paramètres"
+                els.settingsBtn.addEventListener('click', () => {
+                    els.mainContent.classList.add('hidden');
+                    els.settingsPanel.classList.remove('hidden');
+                });
+                els.closeSettingsBtn.addEventListener('click', () => {
+                    els.mainContent.classList.remove('hidden');
+                    els.settingsPanel.classList.add('hidden');
+                });
 
-  function updatePreview(){ preview.textContent = assemble(); }
+                // Gérer les paramètres visuels
+                els.bgColor.addEventListener('input', (e) => { setLS("dsi_bg_color", e.target.value); applyVisualSettings(); });
+                els.resetBgColor.addEventListener('click', () => { setLS("dsi_bg_color", "#f9fafb"); els.bgColor.value = "#f9fafb"; applyVisualSettings(); });
+                els.titleColor.addEventListener('input', (e) => { setLS("dsi_title_color", e.target.value); applyVisualSettings(); });
+                els.resetTitleColor.addEventListener('click', () => { setLS("dsi_title_color", "#1f2937"); els.titleColor.value = "#1f2937"; applyVisualSettings(); });
 
-  // Persist on changes
-  const persistMap = [
-    [domain, "dsi_domain"], [format, "dsi_format"], [detail, "dsi_detail"], [lang, "dsi_lang"], [tone, "dsi_tone"],
-    [role, "dsi_role"], [task, "dsi_task"], [company, "dsi_company"], [sector, "dsi_sector"], [audience, "dsi_audience"],
-    [goals, "dsi_goals"], [constraints, "dsi_constraints"], [deadline, "dsi_deadline"],
-    [teamMode, "dsi_teamMode"], [team, "dsi_team"],
-    [risks, "dsi_risks"], [costs, "dsi_costs"], [kpi, "dsi_kpi"], [deps, "dsi_deps"], [limits, "dsi_limits"], [sources, "dsi_sources"],
-    [allowUnknown, "dsi_allowUnknown"], [listUnknowns, "dsi_listUnknowns"],
-    [examples, "dsi_examples"], [acceptance, "dsi_acceptance"]
-  ];
-  persistMap.forEach(([elem,key])=>{
-    elem.addEventListener("input", ()=>{ setLS(key, elem.type==="checkbox"? elem.checked : elem.value); updatePreview(); });
-    elem.addEventListener("change", ()=>{ setLS(key, elem.type==="checkbox"? elem.checked : elem.value); updatePreview(); });
-  });
-  domain.addEventListener("change", renderQuickTasks);
-  teamMode.addEventListener("change", renderTeamAdds);
+                els.bgImageFile.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            setLS("dsi_bg_image", e.target.result);
+                            els.removeBgImage.classList.remove('hidden');
+                            applyVisualSettings();
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+                els.removeBgImage.addEventListener('click', () => {
+                    setLS("dsi_bg_image", "");
+                    els.bgImageFile.value = '';
+                    els.removeBgImage.classList.add('hidden');
+                    applyVisualSettings();
+                });
 
-  // Actions
-  copyBtn.addEventListener("click", async ()=>{
-    try { await navigator.clipboard.writeText(preview.textContent); copiedBadge.classList.remove("hidden"); setTimeout(()=>copiedBadge.classList.add("hidden"), 1500); }
-    catch { alert("Impossible de copier. Sélectionnez le texte et copiez manuellement."); }
-  });
-  resetBtn.addEventListener("click", ()=>{
-    localStorage.clear(); location.reload();
-  });
-  exportBtn.addEventListener("click", ()=>{
-    const cfg = {
-      role: role.value, task: task.value, company: company.value, sector: sector.value, audience: audience.value,
-      goals: goals.value, constraints: constraints.value, deadline: deadline.value, format: format.value, detail: detail.value,
-      tone: tone.value, lang: lang.value, includeRisks: risks.checked, includeCosts: costs.checked, includeKpi: kpi.checked,
-      includeDeps: deps.checked, includeLimits: limits.checked, includeSources: sources.checked, allowUnknown: allowUnknown.checked,
-      listUnknowns: listUnknowns.checked, examples: examples.value, acceptance: acceptance.value, domain: domain.value,
-      teamMode: teamMode.checked, team: team.value, roles
-    };
-    const blob = new Blob([JSON.stringify(cfg, null, 2)], {type:"application/json"});
-    const url = URL.createObjectURL(blob); const a = document.createElement("a");
-    a.href = url; a.download = "prompt_builder_config.json"; a.click();
-    setTimeout(()=>URL.revokeObjectURL(url), 800);
-  });
-  importFile.addEventListener("change", async (e)=>{
-    const f = e.target.files && e.target.files[0]; if (!f) return;
-    try{
-      const text = await f.text(); const cfg = JSON.parse(text);
-      if (cfg.roles) { roles = cfg.roles; setLS("dsi_roles", roles); refreshRoles(); }
-      const map = { role, task, company, sector, audience, goals, constraints, deadline, acceptance };
-      Object.entries(map).forEach(([k,elem])=>{ if (cfg[k]) { elem.value = cfg[k]; setLS("dsi_"+k, elem.value); } });
-      const sMap = { format, detail, tone, lang, domain, team };
-      Object.entries(sMap).forEach(([k,elem])=>{ if (cfg[k]) { elem.value = cfg[k]; setLS("dsi_"+k, elem.value); } });
-      const bMap = { includeRisks:risks, includeCosts:costs, includeKpi:kpi, includeDeps:deps, includeLimits:limits, includeSources:sources, allowUnknown, listUnknowns, teamMode };
-      Object.entries(bMap).forEach(([k,elem])=>{ if (typeof cfg[k]==="boolean") { elem.checked = cfg[k]; setLS("dsi_"+k, elem.checked); } });
-      if (typeof cfg.examples === "string") { examples.value = cfg.examples; setLS("dsi_examples", examples.value); }
-      renderQuickTasks(); renderTeamAdds(); updatePreview();
-    }catch(e){ alert("Import invalide: "+e.message); }
-  });
+                els.logoFile.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            setLS("dsi_logo", e.target.result);
+                            applyVisualSettings();
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+                els.removeLogo.addEventListener('click', () => {
+                    showModal(
+                        "Supprimer le logo",
+                        "Êtes-vous sûr de vouloir supprimer le logo ?",
+                        () => {
+                            setLS("dsi_logo", "");
+                            els.logoFile.value = '';
+                            applyVisualSettings();
+                        }
+                    );
+                });
 
-  // Initial preview
-  updatePreview();
-});
-</script>
+
+                // Boutons d'action
+                els.applyDomain.addEventListener("click", () => {
+                    const preset = DATA.domainPresets[els.domain.value];
+                    if (!preset) return;
+                    showModal(
+                        "Appliquer le domaine",
+                        "Cette action va écraser les paramètres de tâche et de critères. Continuer ?",
+                        () => {
+                            if (preset.tasks?.[0]) {
+                                els.task.value = preset.tasks[0];
+                                setLS("dsi_task", els.task.value);
+                            }
+                            Object.entries(preset.toggles || {}).forEach(([key, checked]) => {
+                                els[key].checked = checked;
+                                setLS(`dsi_${key}`, checked);
+                            });
+                            renderQuickTasks();
+                            updatePreview();
+                        }
+                    );
+                });
+
+                els.copyBtn.addEventListener("click", async () => {
+                    showModal(
+                        "Copier le prompt",
+                        "Ceci va copier le prompt généré dans votre presse-papiers.",
+                        async () => {
+                            try {
+                                await navigator.clipboard.writeText(els.preview.textContent);
+                                els.copiedBadge.classList.remove("hidden");
+                                setTimeout(() => els.copiedBadge.classList.add("hidden"), 2000);
+                            } catch {
+                                alert("Impossible de copier. Sélectionnez le texte et copiez manuellement.");
+                            }
+                        }
+                    );
+                });
+
+                els.exportBtn.addEventListener("click", () => {
+                    showModal(
+                        "Exporter la configuration",
+                        "Ceci va télécharger votre configuration actuelle. Vous pourrez l'importer ultérieurement sur un autre navigateur.",
+                        () => {
+                            const config = Object.fromEntries(
+                                Object.entries(persistenceMap).map(([elKey, lsKey]) => [elKey, getLS(lsKey, els[elKey]?.value)])
+                            );
+                            config.roles = getLS("dsi_custom_role", DATA.defaultRoles);
+                            config.custom_formats = getLS("dsi_custom_format", []);
+                            config.custom_details = getLS("dsi_custom_detail", []);
+                            config.custom_tones = getLS("dsi_custom_tone", []);
+                            config.custom_langs = getLS("dsi_custom_lang", []);
+                            
+                            // Inclure les paramètres visuels
+                            config.visualSettings = {
+                                bgColor: getLS("dsi_bg_color", "#f9fafb"),
+                                bgImage: getLS("dsi_bg_image", ""),
+                                titleColor: getLS("dsi_title_color", "#1f2937"),
+                                logo: getLS("dsi_logo", "")
+                            };
+
+                            const blob = new Blob([JSON.stringify(config, null, 2)], { type: "application/json" });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = "prompt_builder_config.json";
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+                        }
+                    );
+                });
+
+                els.importFile.addEventListener("change", async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    showModal(
+                        "Importer une configuration",
+                        "Ceci va écraser votre configuration actuelle. Continuer ?",
+                        async () => {
+                            try {
+                                const text = await file.text();
+                                const config = JSON.parse(text);
+                                Object.entries(config).forEach(([key, value]) => {
+                                    const elem = els[key];
+                                    if (elem) {
+                                        if (elem.type === "checkbox") {
+                                            elem.checked = value;
+                                        } else {
+                                            elem.value = value;
+                                        }
+                                        setLS(persistenceMap[key], value);
+                                    }
+                                });
+                                if (config.roles) { setLS("dsi_custom_role", config.roles); roleManager.refresh(); }
+                                if (config.custom_formats) { setLS("dsi_custom_format", config.custom_formats); formatManager.refresh(); }
+                                if (config.custom_details) { setLS("dsi_custom_detail", config.custom_details); detailManager.refresh(); }
+                                if (config.custom_tones) { setLS("dsi_custom_tone", config.custom_tones); toneManager.refresh(); }
+                                if (config.custom_langs) { setLS("dsi_custom_lang", config.custom_langs); langManager.refresh(); }
+                                
+                                // Import des paramètres visuels
+                                if (config.visualSettings) {
+                                    setLS("dsi_bg_color", config.visualSettings.bgColor);
+                                    setLS("dsi_bg_image", config.visualSettings.bgImage);
+                                    setLS("dsi_title_color", config.visualSettings.titleColor);
+                                    setLS("dsi_logo", config.visualSettings.logo);
+                                    applyVisualSettings();
+                                }
+
+                                renderQuickTasks();
+                                renderTeamAdds();
+                                updatePreview();
+                                alert("Configuration importée avec succès !");
+                            } catch (error) {
+                                alert(`Erreur d'import : ${error.message}`);
+                            }
+                        }
+                    );
+                });
+
+                // Rendre les éléments initiaux
+                renderQuickTasks();
+                renderTeamAdds();
+                updatePreview();
+            };
+
+            init();
+        });
+    </script>
 </body>
 </html>
-
