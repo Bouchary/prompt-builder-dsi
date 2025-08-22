@@ -1,403 +1,492 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="utf-8" />
-    <title>Prompt Builder — DSI</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    borderRadius: {
-                        'card': '1rem',
-                        'btn': '1rem',
-                    },
-                }
-            },
-            plugins: [],
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSI Prompt Builder</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.3s, background-image 0.3s;
         }
-    </script>
-    <style type="text/tailwindcss">
-        @layer components {
-            .card { @apply bg-white rounded-card shadow-md p-4; }
-            .btn { @apply rounded-btn px-4 py-2 bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors; }
-            .btn-ghost { @apply rounded-btn px-4 py-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors; }
-            .chip { @apply inline-flex items-center gap-1 border border-gray-200 rounded-full px-3 py-1 bg-gray-50 text-sm; }
-            .form-input { @apply w-full rounded-btn border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500; }
-            .modal-overlay { @apply fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50; }
-            .modal-content { @apply bg-white rounded-lg p-6 max-w-sm w-full shadow-lg; }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            background-color: #e0e7ff;
+            color: #4338ca;
+            border-radius: 9999px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+            margin: 0.25rem;
+        }
+        .chip button {
+            margin-left: 0.5rem;
+            cursor: pointer;
+            font-weight: bold;
+            background: none;
+            border: none;
+        }
+        .prompt-box {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-800 transition-colors duration-300">
+<body class="bg-gray-50 text-gray-800">
 
-    <div class="min-h-screen w-full py-8">
-        <div class="mx-auto max-w-6xl px-4">
-            <div class="flex items-center mb-6 gap-4">
-                <div class="relative w-16 h-16" id="logo-container">
-                    <img id="logo-preview" class="w-full h-full object-contain" src="" alt="Logo" />
-                    <button id="remove-logo" class="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full text-xs hidden" title="Supprimer le logo.">✕</button>
-                </div>
-                <h1 id="main-title" class="text-3xl font-semibold">Assistant de création de prompt</h1>
+    <div id="modal-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm">
+            <h3 id="modal-title" class="text-lg font-semibold mb-2"></h3>
+            <p id="modal-text" class="text-sm text-gray-600 mb-4"></p>
+            <div class="flex justify-end space-x-2">
+                <button id="modal-cancel" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">Annuler</button>
+                <button id="modal-confirm" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Confirmer</button>
             </div>
-            <div id="main-content" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        </div>
+    </div>
 
-                <div class="space-y-4">
+    <header class="sticky top-0 z-10 w-full bg-white shadow-md py-4 transition-colors">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <div id="logo-container" class="hidden">
+                    <img id="logo-preview" class="h-10 w-auto">
+                </div>
+                <h1 id="mainTitle" class="text-3xl font-bold text-gray-800 transition-colors">DSI Prompt Builder</h1>
+            </div>
+            <button id="settings-btn" class="p-2 rounded-full text-gray-500 hover:bg-gray-200 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.942 3.313.824 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.942 1.543-.824 3.313-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.942-3.313-.824-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.942-1.543.824-3.313 2.37-2.37.527.261 1.04-.567.922-1.123z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </button>
+        </div>
+    </header>
 
-                    <div class="card">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Domaine (présélection)</label>
-                                <select id="domain" class="form-input" title="Choisissez un domaine pour prérégler la tâche et les options."></select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Format de sortie</label>
-                                <select id="format" class="form-input" title="Définit la structure de la réponse de l'IA (plan, tableau, etc.)."></select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Niveau de détail</label>
-                                <select id="detail" class="form-input" title="Contrôle la profondeur de la réponse (synthèse, standard, exhaustif)."></select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Langue</label>
-                                <select id="lang" class="form-input" title="Spécifie la langue de la réponse."></select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Ton</label>
-                                <select id="tone" class="form-input" title="Définit le style d'écriture de l'IA."></select>
-                            </div>
+    <div id="main-content" class="container mx-auto p-4 md:p-8 pt-20 relative">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-xl font-semibold mb-4">Contexte et Cibles</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="company" class="block text-sm font-medium text-gray-700">Nom de l'entreprise</label>
+                            <input type="text" id="company" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                        </div>
+                        <div>
+                            <label for="sector" class="block text-sm font-medium text-gray-700">Secteur d'activité</label>
+                            <input type="text" id="sector" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                        </div>
+                        <div>
+                            <label for="audience" class="block text-sm font-medium text-gray-700">Audience</label>
+                            <input type="text" id="audience" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                        </div>
+                        <div>
+                            <label for="deadline" class="block text-sm font-medium text-gray-700">Échéance</label>
+                            <input type="text" id="deadline" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
                         </div>
                     </div>
-
-                    <div class="card">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Rôle</label>
-                        <select id="role" class="form-input mb-3" title="Assignez un rôle à l'IA pour qu'elle adopte une expertise spécifique."></select>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                            <div class="md:col-span-2">
-                                <input id="newRole" class="form-input" placeholder="Ajouter un rôle personnalisé" title="Entrez un rôle personnalisé, comme 'Architecte d'entreprise' ou 'Manager des opérations IT'.">
-                            </div>
-                            <button id="addRole" class="btn-ghost" title="Ajouter le rôle personnalisé à la liste déroulante.">+ Ajouter</button>
-                        </div>
-                        <div id="rolesChips" class="mt-3 flex flex-wrap gap-2"></div>
+                    <div class="mt-4">
+                        <label for="goals" class="block text-sm font-medium text-gray-700">Objectifs de la tâche</label>
+                        <textarea id="goals" rows="2" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></textarea>
                     </div>
-
-                    <div class="card">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Tâche (objectif principal)</label>
-                        <div id="quickTasks" class="flex flex-wrap gap-2 mb-2"></div>
-                        <textarea id="task" class="form-input min-h-[100px]" placeholder="Ex: Rédiger une politique de sécurité SI adaptée à une PME" title="Décrivez clairement et précisément la tâche à accomplir par l'IA."></textarea>
+                    <div class="mt-4">
+                        <label for="constraints" class="block text-sm font-medium text-gray-700">Contraintes et limitations</label>
+                        <textarea id="constraints" rows="2" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></textarea>
                     </div>
-
-                    <div class="card">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Entreprise</label>
-                                <textarea id="company" class="form-input min-h-[60px]" placeholder="Ex: PME de 120 personnes, France, secteur de la santé, en forte croissance.&#10;Contient plusieurs filiales avec des SI indépendants."></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Secteur</label>
-                                <textarea id="sector" class="form-input min-h-[60px]" placeholder="Ex: Services B2B, Industrie manufacturière, Conseil IT spécialisé en cloud."></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Audience</label>
-                                <textarea id="audience" class="form-input min-h-[60px]" placeholder="Ex: Comité de direction et équipes IT.&#10;À noter : le COMEX est peu familier avec les termes techniques."></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Objectifs</label>
-                                <textarea id="goals" class="form-input min-h-[60px]" placeholder="Ex: Produire un livrable exploitable dès la première version.&#10;Faciliter la prise de décision."></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Contraintes</label>
-                                <textarea id="constraints" class="form-input min-h-[60px]" placeholder="Ex: Budget limité, conformité RGPD requise, ressources IT réduites.&#10;Pas d'accès à des outils payants."></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Échéance</label>
-                                <textarea id="deadline" class="form-input min-h-[60px]" placeholder="Ex: 2 semaines.&#10;Doit être présenté au prochain comité de pilotage."></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="flex items-center justify-between">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Mode équipes (adapter au public)</label>
-                            <label class="flex items-center gap-2">
-                                <input id="teamMode" type="checkbox" class="h-4 w-4" checked title="Activez pour adapter le prompt au profil de l'équipe sélectionnée.">
-                                <span class="text-sm text-gray-700">Activé</span>
-                            </label>
-                        </div>
-                        <div id="teamSection" class="mt-3">
-                            <select id="team" class="form-input mb-2" title="Sélectionnez le profil de l'équipe pour adapter le ton et les instructions."></select>
-                            <ul id="teamAdds" class="list-disc list-inside text-sm text-gray-600"></ul>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Exemples (few‑shot) — optionnel</label>
-                        <textarea id="examples" class="form-input min-h-[100px]" placeholder="Exemple 1:\n— Contexte: PME B2B\n— Sortie: plan en 5 sections\n\nExemple 2:\n— …" title="Fournissez des exemples de prompts et de réponses attendues pour guider l'IA."></textarea>
-                    </div>
-
                 </div>
 
-                <div class="space-y-4">
-
-                    <div class="card">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Critères & sections à inclure</label>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            <label class="flex items-center gap-2"><input id="risks" type="checkbox" class="h-4 w-4" checked title="Demande à l'IA d'inclure une section sur les risques potentiels."/> <span>Inclure Risques</span></label>
-                            <label class="flex items-center gap-2"><input id="costs" type="checkbox" class="h-4 w-4" checked title="Demande une estimation des coûts ou du coût total de possession (TCO)."/> <span>Inclure Coûts/TCO</span></label>
-                            <label class="flex items-center gap-2"><input id="kpi" type="checkbox" class="h-4 w-4" checked title="Demande à l'IA de proposer des indicateurs de performance (KPI)."/> <span>Inclure KPI</span></label>
-                            <label class="flex items-center gap-2"><input id="deps" type="checkbox" class="h-4 w-4" checked title="Demande de lister les dépendances et prérequis nécessaires."/> <span>Inclure Dépendances</span></label>
-                            <label class="flex items-center gap-2"><input id="limits" type="checkbox" class="h-4 w-4" checked title="Demande d'expliciter les hypothèses et les limites du document."/> <span>Inclure Hypothèses/Limites</span></label>
-                            <label class="flex items-center gap-2"><input id="sources" type="checkbox" class="h-4 w-4" title="Demande à l'IA de citer les sources ou références qu'elle a utilisées."/> <span>Demander Sources</span></label>
-                            <label class="flex items-center gap-2"><input id="allowUnknown" type="checkbox" class="h-4 w-4" checked title="Indique à l'IA de répondre 'Je ne sais pas' plutôt que d'inventer des informations."/> <span>Autoriser “Je ne sais pas”</span></label>
-                            <label class="flex items-center gap-2"><input id="listUnknowns" type="checkbox" class="h-4 w-4" checked title="Demande à l'IA de lister les informations qu'il lui manque pour être plus précis."/> <span>Lister Inconnues/Questions</span></label>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-xl font-semibold mb-4">Définition de la tâche</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="domain" class="block text-sm font-medium text-gray-700">Domaine d'expertise</label>
+                            <select id="domain" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
+                        </div>
+                        <div>
+                            <label for="role" class="block text-sm font-medium text-gray-700">Rôle de l'IA</label>
+                            <select id="role" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
+                        </div>
+                        <div>
+                            <label for="format" class="block text-sm font-medium text-gray-700">Format de sortie</label>
+                            <select id="format" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
+                        </div>
+                        <div>
+                            <label for="detail" class="block text-sm font-medium text-gray-700">Niveau de détail</label>
+                            <select id="detail" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
+                        </div>
+                        <div>
+                            <label for="tone" class="block text-sm font-medium text-gray-700">Ton</label>
+                            <select id="tone" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
+                        </div>
+                        <div>
+                            <label for="lang" class="block text-sm font-medium text-gray-700">Langue</label>
+                            <select id="lang" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
                         </div>
                     </div>
 
-                    <div class="card">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Critères d’acceptation</label>
-                        <textarea id="acceptance" class="form-input min-h-[100px]" placeholder="Ex: Couverture complète, cohérence, actionnable, conforme RGPD, pas d’invention." title="Définissez les critères de qualité que le résultat de l'IA doit respecter."></textarea>
-                    </div>
-
-                    <div class="card">
-                        <div class="flex items-center justify-between mb-2">
-                            <h2 class="text-lg font-medium">Aperçu du prompt généré</h2>
-                            <span id="copiedBadge" class="text-green-600 text-sm hidden">Copié ✓</span>
-                        </div>
-                        <pre id="preview" class="whitespace-pre-wrap text-sm bg-gray-50 rounded-xl p-4 border border-gray-200 max-h-[70vh] overflow-auto"></pre>
-                    </div>
-
-                    <div class="card">
-                        <p class="text-sm text-gray-500">Astuce : collez ce prompt dans votre outil d’IA. Les balises &lt;contexte&gt;, &lt;instructions&gt;, &lt;exemples&gt; et le bloc ```tache facilitent une interprétation fiable. Utilisez l’export JSON pour partager vos presets avec d’autres DSI.</p>
-                    </div>
-
-                    <div class="flex flex-wrap gap-2">
-                        <button id="copyBtn" class="btn flex items-center gap-2" title="Copie le prompt généré dans le presse-papiers.">Copier le prompt</button>
-                        <button id="clearBtn" class="btn-ghost hidden" title="Effacer toutes les entrées et champs de texte.">Effacer les entrées</button>
-                        <button id="exportBtn" class="btn-ghost flex items-center gap-2" title="Exporte la configuration actuelle au format JSON.">Exporter config</button>
-                        <label class="inline-flex items-center gap-2 cursor-pointer btn-ghost" title="Importe une configuration depuis un fichier JSON.">
-                            Importer config <input id="importFile" type="file" accept="application/json" class="hidden" />
+                    <div class="mt-4 flex items-center justify-between">
+                        <label class="flex items-center text-sm font-medium text-gray-700">
+                            <input type="checkbox" id="teamMode" class="h-4 w-4 text-indigo-600 rounded">
+                            <span class="ml-2">Mode équipe</span>
                         </label>
-                        <button id="settingsBtn" class="btn-ghost flex items-center gap-2" title="Ouvrir les paramètres d'apparence et de personnalisation des menus.">Paramètres</button>
+                        <select id="team" class="w-2/3 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
+                    </div>
+                    <div id="team-section" class="hidden mt-4 bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-sm font-semibold mb-2">Ajouts au prompt :</h4>
+                        <ul id="team-adds" class="text-sm text-gray-600 list-disc list-inside"></ul>
                     </div>
                 </div>
-            </div>
 
-            <div id="settings-panel" class="hidden mt-6">
-                <div class="card">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-medium">Gestion des options personnalisées</h2>
-                        <button id="closeSettingsBtn" class="text-gray-400 hover:text-gray-700 transition-colors" title="Fermer les paramètres.">✕</button>
-                    </div>
-                    <div class="space-y-6">
-                        <div class="space-y-4">
-                            <h3 class="font-medium text-gray-700">Apparence</h3>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Couleur de fond</label>
-                                <input type="color" id="bgColor" class="w-16 h-10 p-1 border rounded-lg cursor-pointer" title="Change la couleur de fond de la page.">
-                                <span class="text-sm text-gray-500 ml-2">ou</span>
-                                <button id="resetBgColor" class="btn-ghost text-sm" title="Réinitialise la couleur de fond à la valeur par défaut.">Réinitialiser</button>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Image de fond</label>
-                                <div class="flex gap-2 items-center">
-                                    <label class="btn-ghost cursor-pointer text-sm" title="Sélectionnez une image pour l'utiliser comme fond d'écran.">
-                                        Choisir un fichier
-                                        <input type="file" id="bgImageFile" accept="image/*" class="hidden" />
-                                    </label>
-                                    <button id="removeBgImage" class="btn-ghost text-sm hidden" title="Supprime l'image de fond actuelle.">Supprimer</button>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Couleur du titre</label>
-                                <input type="color" id="titleColor" class="w-16 h-10 p-1 border rounded-lg cursor-pointer" title="Change la couleur du titre principal.">
-                                <button id="resetTitleColor" class="btn-ghost text-sm" title="Réinitialise la couleur du titre à la valeur par défaut.">Réinitialiser</button>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Logo</label>
-                                <div class="flex gap-2 items-center">
-                                    <label class="btn-ghost cursor-pointer text-sm" title="Télécharger un logo à afficher à côté du titre.">
-                                        Choisir un fichier
-                                        <input type="file" id="logoFile" accept="image/*" class="hidden" />
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr/>
-
-                        <div class="space-y-6">
-
-                            <div>
-                                <h3 class="font-medium text-gray-700 mb-2">Domaines personnalisés</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="md:col-span-2">
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nom du domaine</label>
-                                        <input id="newDomainName" class="form-input" placeholder="Ex: Plan de migration ERP" title="Nom du domaine à ajouter."/>
-                                    </div>
-                                    <div class="md:col-span-2">
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Tâches rapides</label>
-                                        <textarea id="newDomainTasks" class="form-input min-h-[60px]" placeholder="Ex: Rédiger le cahier des charges&#10;Préparer une présentation au COMEX" title="Entrez une ou plusieurs tâches rapides, séparées par un saut de ligne."></textarea>
-                                    </div>
-                                    <div class="md:col-span-2">
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Toggles par défaut</label>
-                                        <div class="grid grid-cols-2 gap-2 text-sm">
-                                            <label class="flex items-center gap-2"><input id="newDomainRisks" type="checkbox" class="h-4 w-4"/> <span>Risques</span></label>
-                                            <label class="flex items-center gap-2"><input id="newDomainCosts" type="checkbox" class="h-4 w-4"/> <span>Coûts</span></label>
-                                            <label class="flex items-center gap-2"><input id="newDomainKpi" type="checkbox" class="h-4 w-4"/> <span>KPI</span></label>
-                                            <label class="flex items-center gap-2"><input id="newDomainDeps" type="checkbox" class="h-4 w-4"/> <span>Dépendances</span></label>
-                                            <label class="flex items-center gap-2"><input id="newDomainLimits" type="checkbox" class="h-4 w-4"/> <span>Hypothèses/Limites</span></label>
-                                            <label class="flex items-center gap-2"><input id="newDomainSources" type="checkbox" class="h-4 w-4"/> <span>Sources</span></label>
-                                            <label class="flex items-center gap-2"><input id="newDomainAllowUnknown" type="checkbox" class="h-4 w-4"/> <span>Autoriser “Je ne sais pas”</span></label>
-                                            <label class="flex items-center gap-2"><input id="newDomainListUnknowns" type="checkbox" class="h-4 w-4"/> <span>Lister Inconnues</span></label>
-                                        </div>
-                                    </div>
-                                    <div class="md:col-span-2">
-                                        <button id="addDomain" class="btn-ghost w-full">+ Ajouter le domaine</button>
-                                    </div>
-                                </div>
-                                <div id="domainChips" class="mt-3 flex flex-wrap gap-2"></div>
-                            </div>
-                            
-                            <hr/>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Formats de sortie</label>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                                    <div class="md:col-span-2">
-                                        <input data-type="format" class="form-input" placeholder="Ajouter un format (ex: 'Compte-rendu')" title="Ajoutez de nouveaux formats de sortie au menu déroulant 'Format de sortie'."/>
-                                    </div>
-                                    <button data-add="format" class="btn-ghost" title="Ajouter ce format.">+ Ajouter</button>
-                                </div>
-                                <div id="formatChips" class="mt-3 flex flex-wrap gap-2"></div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Niveaux de détail</label>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                                    <div class="md:col-span-2">
-                                        <input data-type="detail" class="form-input" placeholder="Ajouter un niveau (ex: 'Très précis')" title="Ajoutez de nouveaux niveaux de détail au menu déroulant 'Niveau de détail'."/>
-                                    </div>
-                                    <button data-add="detail" class="btn-ghost" title="Ajouter ce niveau de détail.">+ Ajouter</button>
-                                </div>
-                                <div id="detailChips" class="mt-3 flex flex-wrap gap-2"></div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Tons</label>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                                    <div class="md:col-span-2">
-                                        <input data-type="tone" class="form-input" placeholder="Ajouter un ton (ex: 'Ambitieux')" title="Ajoutez de nouveaux tons d'écriture au menu déroulant 'Ton'."/>
-                                    </div>
-                                    <button data-add="tone" class="btn-ghost" title="Ajouter ce ton.">+ Ajouter</button>
-                                </div>
-                                <div id="toneChips" class="mt-3 flex flex-wrap gap-2"></div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Langues</label>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                                    <div class="md:col-span-2">
-                                        <input data-type="lang" class="form-input" placeholder="Ajouter une langue (ex: 'Espagnol')" title="Ajoutez de nouvelles langues au menu déroulant 'Langue'."/>
-                                    </div>
-                                    <button data-add="lang" class="btn-ghost" title="Ajouter cette langue.">+ Ajouter</button>
-                                </div>
-                                <div id="langChips" class="mt-3 flex flex-wrap gap-2"></div>
-                            </div>
-                        </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-xl font-semibold mb-4">Critères et options</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="risks" class="h-4 w-4 text-indigo-600 rounded">
+                            <span class="ml-2 text-gray-700">Inclure les risques</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="costs" class="h-4 w-4 text-indigo-600 rounded">
+                            <span class="ml-2 text-gray-700">Estimer les coûts/TCO</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="kpi" class="h-4 w-4 text-indigo-600 rounded">
+                            <span class="ml-2 text-gray-700">Inclure des KPI/mesures de succès</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="deps" class="h-4 w-4 text-indigo-600 rounded">
+                            <span class="ml-2 text-gray-700">Mentionner les dépendances</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="limits" class="h-4 w-4 text-indigo-600 rounded">
+                            <span class="ml-2 text-gray-700">Indiquer les limites et hypothèses</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="sources" class="h-4 w-4 text-indigo-600 rounded">
+                            <span class="ml-2 text-gray-700">Fournir des sources ou références</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="allowUnknown" class="h-4 w-4 text-indigo-600 rounded">
+                            <span class="ml-2 text-gray-700">Répondre "Je ne sais pas" si inconnu</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="listUnknowns" class="h-4 w-4 text-indigo-600 rounded">
+                            <span class="ml-2 text-gray-700">Lister les inconnues</span>
+                        </label>
                     </div>
                 </div>
+
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-xl font-semibold mb-4">Description de la tâche</h2>
+                    <div id="quick-tasks" class="flex flex-wrap gap-2 mb-4"></div>
+                    <label for="task" class="sr-only">Description de la tâche</label>
+                    <textarea id="task" rows="6" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></textarea>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-xl font-semibold mb-4">Critères d'acceptation</h2>
+                    <p class="text-sm text-gray-500 mb-2">Décrivez les critères pour considérer que la réponse est réussie.</p>
+                    <textarea id="acceptance" rows="3" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></textarea>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-xl font-semibold mb-4">Exemples de sortie</h2>
+                    <p class="text-sm text-gray-500 mb-2">Fournissez un ou plusieurs exemples de la sortie souhaitée.</p>
+                    <textarea id="examples" rows="6" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></textarea>
+                </div>
+
             </div>
 
-        </div>
-    </div>
-
-    <div id="modal-overlay" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h3 id="modal-title" class="text-xl font-semibold mb-4"></h3>
-            <p id="modal-text" class="text-gray-600 mb-6"></p>
-            <div class="flex justify-end gap-2">
-                <button id="modal-cancel" class="btn-ghost">Annuler</button>
-                <button id="modal-confirm" class="btn">Confirmer</button>
+            <div class="lg:col-span-1 space-y-4">
+                <div class="sticky top-20 bg-gray-100 p-6 rounded-lg shadow-inner">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Prompt Généré</h2>
+                    <div id="preview" class="prompt-box bg-white p-4 rounded-md text-gray-700 text-sm overflow-auto max-h-96">
+                        </div>
+                    <div class="flex flex-col space-y-2 mt-4">
+                        <button id="copy-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
+                            Copier le Prompt
+                        </button>
+                        <span id="copied-badge" class="hidden text-center text-xs text-green-600 font-medium">Copié ! ✅</span>
+                        <button id="clear-btn" class="hidden px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors">
+                            Effacer les entrées
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <div id="settings-panel" class="fixed inset-0 bg-gray-50 z-40 p-4 md:p-8 overflow-y-auto hidden">
+        <div class="container mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800">Paramètres</h1>
+                <button id="close-settings-btn" class="p-2 rounded-full text-gray-500 hover:bg-gray-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <div class="bg-white p-6 rounded-lg shadow space-y-6">
+                    <h2 class="text-xl font-semibold">Options Personnalisées</h2>
+                    <div>
+                        <h3 class="font-medium text-gray-700 mb-2">Rôles</h3>
+                        <div id="rolesChips" class="flex flex-wrap gap-2 mb-2"></div>
+                        <div class="flex space-x-2">
+                            <input type="text" id="newRole" data-type="role" placeholder="Nouveau rôle" class="flex-grow px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                            <button id="addRole" data-add="role" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors">Ajouter</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-700 mb-2">Formats de sortie</h3>
+                        <div id="formatChips" class="flex flex-wrap gap-2 mb-2"></div>
+                        <div class="flex space-x-2">
+                            <input type="text" data-type="format" placeholder="Nouveau format" class="flex-grow px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                            <button data-add="format" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors">Ajouter</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-700 mb-2">Niveaux de détail</h3>
+                        <div id="detailChips" class="flex flex-wrap gap-2 mb-2"></div>
+                        <div class="flex space-x-2">
+                            <input type="text" data-type="detail" placeholder="Nouveau niveau" class="flex-grow px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                            <button data-add="detail" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors">Ajouter</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-700 mb-2">Tons</h3>
+                        <div id="toneChips" class="flex flex-wrap gap-2 mb-2"></div>
+                        <div class="flex space-x-2">
+                            <input type="text" data-type="tone" placeholder="Nouveau ton" class="flex-grow px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                            <button data-add="tone" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors">Ajouter</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-700 mb-2">Langues</h3>
+                        <div id="langChips" class="flex flex-wrap gap-2 mb-2"></div>
+                        <div class="flex space-x-2">
+                            <input type="text" data-type="lang" placeholder="Nouvelle langue" class="flex-grow px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                            <button data-add="lang" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors">Ajouter</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow space-y-6">
+                    <h2 class="text-xl font-semibold">Domaines Personnalisés</h2>
+                    <div id="domainChips" class="flex flex-wrap gap-2 mb-2"></div>
+                    <div>
+                        <h3 class="font-medium text-gray-700 mb-2">Ajouter un nouveau domaine</h3>
+                        <label for="newDomainName" class="block text-sm font-medium text-gray-700">Nom du domaine</label>
+                        <input type="text" id="newDomainName" placeholder="Ex: Finance, Marketing..." class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                        <label for="newDomainTasks" class="block text-sm font-medium text-gray-700 mt-4">Tâches fréquentes (une par ligne)</label>
+                        <textarea id="newDomainTasks" rows="3" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></textarea>
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <label class="flex items-center"><input type="checkbox" id="newDomainRisks" class="h-4 w-4 text-indigo-600 rounded"><span class="ml-2">Risques</span></label>
+                            <label class="flex items-center"><input type="checkbox" id="newDomainCosts" class="h-4 w-4 text-indigo-600 rounded"><span class="ml-2">Coûts</span></label>
+                            <label class="flex items-center"><input type="checkbox" id="newDomainKpi" class="h-4 w-4 text-indigo-600 rounded"><span class="ml-2">KPI</span></label>
+                            <label class="flex items-center"><input type="checkbox" id="newDomainDeps" class="h-4 w-4 text-indigo-600 rounded"><span class="ml-2">Dépendances</span></label>
+                            <label class="flex items-center"><input type="checkbox" id="newDomainLimits" class="h-4 w-4 text-indigo-600 rounded"><span class="ml-2">Limites</span></label>
+                            <label class="flex items-center"><input type="checkbox" id="newDomainSources" class="h-4 w-4 text-indigo-600 rounded"><span class="ml-2">Sources</span></label>
+                            <label class="flex items-center"><input type="checkbox" id="newDomainAllowUnknown" class="h-4 w-4 text-indigo-600 rounded"><span class="ml-2">"Je ne sais pas"</span></label>
+                            <label class="flex items-center"><input type="checkbox" id="newDomainListUnknowns" class="h-4 w-4 text-indigo-600 rounded"><span class="ml-2">Lister inconnues</span></label>
+                        </div>
+                        <button id="addDomain" class="mt-4 w-full px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors">Ajouter ce domaine</button>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow space-y-6">
+                    <h2 class="text-xl font-semibold">Paramètres Visuels</h2>
+                    <div>
+                        <label for="bgColor" class="block text-sm font-medium text-gray-700">Couleur de fond</label>
+                        <div class="flex space-x-2 mt-1">
+                            <input type="color" id="bgColor" value="#f9fafb" class="h-10 w-10 p-1 rounded-md border border-gray-300">
+                            <button id="resetBgColor" class="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">Réinitialiser</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="bgImageFile" class="block text-sm font-medium text-gray-700">Image de fond</label>
+                        <div class="flex space-x-2 mt-1">
+                            <input type="file" id="bgImageFile" accept="image/*" class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                            <button id="removeBgImage" class="hidden px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">Supprimer</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="titleColor" class="block text-sm font-medium text-gray-700">Couleur du titre</label>
+                        <div class="flex space-x-2 mt-1">
+                            <input type="color" id="titleColor" value="#1f2937" class="h-10 w-10 p-1 rounded-md border border-gray-300">
+                            <button id="resetTitleColor" class="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">Réinitialiser</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="logoFile" class="block text-sm font-medium text-gray-700">Logo</label>
+                        <div class="flex space-x-2 mt-1 items-center">
+                            <input type="file" id="logoFile" accept="image/*" class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                            <button id="remove-logo" class="hidden px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">Supprimer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow space-y-4">
+                    <h2 class="text-xl font-semibold">Sauvegarde & Restauration</h2>
+                    <div class="flex flex-col space-y-2">
+                        <button id="exportBtn" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">Exporter la configuration</button>
+                        <label for="importFile" class="flex-grow px-4 py-2 text-sm font-medium text-center text-blue-600 bg-blue-100 rounded-md hover:bg-blue-200 transition-colors cursor-pointer">
+                            Importer une configuration
+                        </label>
+                        <input type="file" id="importFile" class="hidden" accept=".json">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
+        const DEFAULT_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAABRCAYAAACi2dYkAAAACXBIWXMAAAsTAAALEwEAmpwYAAADwUlEQVR4nO2bv0oEQRTHf16y9wQ7Q+wJbMv2BHaE2BPaEwQRS3hL7J1oQax8E3sJ+wE22FqYhYVs9s5lV683s92d3Z3N7vvgwN58b/Z8M5vNdm8YhmEYhmEYhmEYhmEYhmEYhmEYhmEYhmEYhmEYhmGYA4rW6/UGp/v5eZk2j8drg8f29vbL1j/Q+B6v1+u+x+12OxwMBr4EAK/Hk8P462/o+fCjYt6+vj6L+f+g58OPxnz/8+94HwD+f/h+f3H1eH+r2e293W1e/f7rVnsPqP8D2B/B/gD2j8L/B+2uNqj9gNrvD6i+gOjvD6D1B9gPoD+F3g+g/QfUD6D9H62/r+sP+o3Wf7n/3+n8n6f9b/h/h/7/Hfr/P/3/j/p/w/4fTP9T8f8A+B/AfgD8H8B+APxLof8B9Ifh/gH0h8B+APRD0A9CPQj1JtQTUL8H9SfQH0J9CPQh1JtAHQj1JtD/B+h/QPoPUP8H0P8H0P8H0N8D+v/Q/gPoF9gvoJ9AvQP1CehPoH4B9UnoT6B+APWJ6E+gPoH6BOpPof4H6A+g/gD1R+j/X6wPoH4A9UfoB6AfoH4B+gHoB6AfoB+A/gD6AegHoB+A/gD6AegnoJ6AegLqD1h/QH1B9QHUH1AfgJ+AHgLqD6A/gC4A/f+g/wG6AuAH/6+pPwD9/2j/I+m+I/lP2A+g/4B0A/gA/gPqA/APoD+A+gPoD6B/AX0A+gPoC6B/APoB9BvQZ0GdAnQF1CtQPUGdAnQF1BdQXUFdAXQF1AtQJUCdAnQJ1DdQTUG9AvQF1BfQTUG9AHUF9ANwA9APQHUAPADUAfQDwAVAHQD8AdAPQD0A/AHwA+AHQA9AdgA5AdwA6ANgB0w+A3QBwA8AdAHeD2G9A9APQD0w/AH4A+gHoB6AeQHYA2wPoB6IfgB6AegH4AegHwA9APQD0A+gHQD8A9APQD0A/AHwA+AHYA+AHYD8A9gPQD8AegH8A+gPoA9A/AD4A/APoD6A/APgD6APQJgP4B8A+gXwB8AvQJ0CdAHwD7AegTUCdAewD6APQHoJ0B9QHoD6BfAHoD+APoD6A/AOgPQJ0B6A8A+gPQP+E+B/d6g+C/3rD8I+G+A3wB/gHoF7/jLgAAAABJRU5ErkJggg==";
 
-            // --- Configuration des données ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const els = {
+                // Main UI
+                mainContent: document.getElementById("main-content"),
+                settingsPanel: document.getElementById("settings-panel"),
+                settingsBtn: document.getElementById("settings-btn"),
+                closeSettingsBtn: document.getElementById("close-settings-btn"),
+                preview: document.getElementById("preview"),
+                copyBtn: document.getElementById("copy-btn"),
+                copiedBadge: document.getElementById("copied-badge"),
+                clearBtn: document.getElementById("clear-btn"),
+                exportBtn: document.getElementById("exportBtn"),
+                importFile: document.getElementById("importFile"),
+                mainTitle: document.getElementById("mainTitle"),
+
+                // Form Inputs
+                company: document.getElementById("company"),
+                sector: document.getElementById("sector"),
+                audience: document.getElementById("audience"),
+                goals: document.getElementById("goals"),
+                constraints: document.getElementById("constraints"),
+                deadline: document.getElementById("deadline"),
+                domain: document.getElementById("domain"),
+                role: document.getElementById("role"),
+                format: document.getElementById("format"),
+                detail: document.getElementById("detail"),
+                tone: document.getElementById("tone"),
+                lang: document.getElementById("lang"),
+                task: document.getElementById("task"),
+                acceptance: document.getElementById("acceptance"),
+                examples: document.getElementById("examples"),
+
+                // Checkbox Toggles
+                risks: document.getElementById("risks"),
+                costs: document.getElementById("costs"),
+                kpi: document.getElementById("kpi"),
+                deps: document.getElementById("deps"),
+                limits: document.getElementById("limits"),
+                sources: document.getElementById("sources"),
+                allowUnknown: document.getElementById("allowUnknown"),
+                listUnknowns: document.getElementById("listUnknowns"),
+                teamMode: document.getElementById("teamMode"),
+                team: document.getElementById("team"),
+                teamSection: document.getElementById("team-section"),
+                teamAdds: document.getElementById("team-adds"),
+
+                // Custom Options
+                newRole: document.getElementById("newRole"),
+                rolesChips: document.getElementById("rolesChips"),
+                addRole: document.getElementById("addRole"),
+
+                // Visual Settings
+                bgColor: document.getElementById("bgColor"),
+                resetBgColor: document.getElementById("resetBgColor"),
+                bgImageFile: document.getElementById("bgImageFile"),
+                removeBgImage: document.getElementById("removeBgImage"),
+                titleColor: document.getElementById("titleColor"),
+                resetTitleColor: document.getElementById("resetTitleColor"),
+                logoFile: document.getElementById("logoFile"),
+                logoPreview: document.getElementById("logo-preview"),
+                logoContainer: document.getElementById("logo-container"),
+                removeLogo: document.getElementById("remove-logo"),
+                modalOverlay: document.getElementById("modal-overlay"),
+                modalTitle: document.getElementById("modal-title"),
+                modalText: document.getElementById("modal-text"),
+                modalConfirm: document.getElementById("modal-confirm"),
+                modalCancel: document.getElementById("modal-cancel"),
+
+                // Custom Domain Elements
+                newDomainName: document.getElementById("newDomainName"),
+                newDomainTasks: document.getElementById("newDomainTasks"),
+                newDomainRisks: document.getElementById("newDomainRisks"),
+                newDomainCosts: document.getElementById("newDomainCosts"),
+                newDomainKpi: document.getElementById("newDomainKpi"),
+                newDomainDeps: document.getElementById("newDomainDeps"),
+                newDomainLimits: document.getElementById("newDomainLimits"),
+                newDomainSources: document.getElementById("newDomainSources"),
+                newDomainAllowUnknown: document.getElementById("newDomainAllowUnknown"),
+                newDomainListUnknowns: document.getElementById("newDomainListUnknowns"),
+                addDomain: document.getElementById("addDomain"),
+                domainChips: document.getElementById("domainChips"),
+                quickTasks: document.getElementById("quick-tasks")
+            };
+
             const DATA = {
+                defaultRoles: [
+                    "Expert en gestion de projet", "Chef de produit", "Architecte logiciel", "Spécialiste en cybersécurité",
+                    "Analyste de données", "Consultant en stratégie d'entreprise", "Rédacteur technique", "Marketeur digital"
+                ],
                 outputFormats: [
-                    { value: "plan", label: "Plan numéroté" }, { value: "table", label: "Tableau Markdown" },
-                    { value: "json", label: "JSON schema" }, { value: "doc", label: "Modèle de document" },
-                    { value: "email", label: "Email professionnel" }, { value: "report", label: "Compte‑rendu / Synthèse" },
+                    { value: "bullet-points", label: "Liste à puces" },
+                    { value: "markdown", label: "Document Markdown structuré" },
+                    { value: "email", label: "Brouillon d'email" },
+                    { value: "slide-deck", label: "Plan de diapositives (Slide deck)" },
+                    { value: "table", label: "Tableau de données" }
                 ],
                 detailLevels: [
-                    { value: "synthese", label: "Synthèse" }, { value: "standard", label: "Standard" }, { value: "exhaustif", label: "Exhaustif" },
+                    { value: "low", label: "Synthétique (1-2 paragraphes)" },
+                    { value: "medium", label: "Détaillé (sections structurées)" },
+                    { value: "high", label: "Exhaustif (incluant toutes les sections pertinentes)" }
                 ],
                 tones: [
-                    { value: "pro", label: "Professionnel" }, { value: "pedago", label: "Pédagogique" },
-                    { value: "concis", label: "Concis" }, { value: "persuasif", label: "Persuasif" },
+                    { value: "professional", label: "Professionnel et formel" },
+                    { value: "friendly", label: "Amical et accessible" },
+                    { value: "technical", label: "Technique et précis" },
+                    { value: "persuasive", label: "Persuasif et engageant" }
                 ],
                 languages: [
-                    { value: "fr", label: "Français" }, { value: "en", label: "English" },
-                ],
-                defaultRoles: [
-                    "Expert cybersécurité PME", "Consultant outillage SI", "Architecte cloud", "Data governance lead",
-                    "SRE / Incident manager", "PMO SI", "Juriste IT / RGPD", "CTO coach", "FinOps",
-                    "Responsable ITSM / ITAM",
-                ],
-                teamProfiles: [
-                    { value: "comex", label: "COMEX", adds: ["Commencer par un résumé exécutif en 5 puces.", "Limiter le jargon technique et mettre en avant les enjeux business."], tone: "pro", detail: "synthese" },
-                    { value: "finance", label: "Direction Finance", adds: ["Mettre en avant TCO, ROI, OPEX/CAPEX, et risques de conformité."], tone: "pro", detail: "standard" },
-                    { value: "rh", label: "RH", adds: ["Mettre l’accent sur conduite du changement, formation et impacts humains."], tone: "pedago", detail: "standard" },
-                    { value: "ops", label: "Opérations / Production", adds: ["Préciser la continuité de service, RTO/RPO, et procédures opérationnelles."], tone: "pro", detail: "exhaustif" },
-                    { value: "it", label: "Équipe IT", adds: ["Inclure détails techniques, prérequis, dépendances et check‑lists."], tone: "pro", detail: "exhaustif" },
-                    { value: "juridique", label: "Juridique / RGPD", adds: ["Citer bases légales applicables, responsabilités et preuves de conformité."], tone: "pro", detail: "standard" },
+                    { value: "fr", label: "Français" },
+                    { value: "en", label: "Anglais" },
+                    { value: "es", label: "Espagnol" }
                 ],
                 domainPresets: {
-                    "Cybersécurité": { tasks: ["Rédiger une politique de sécurité SI adaptée à une PME", "Concevoir un plan de sensibilisation sécurité sur 6 mois"], toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: true } },
-                    "ITSM / ITAM": { tasks: ["Comparer 3 solutions ITSM pour une PME (tableau + reco)", "Modéliser un processus de gestion des incidents et SLAs"], toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: false } },
-                    "RGPD / Data Governance": { tasks: ["Produire une politique de rétention et d’archivage (RGPD)", "Construire un registre des traitements priorisé pour une PME"], toggles: { risks: true, costs: false, kpi: true, deps: true, limits: true, sources: true } },
-                    "Cloud / FinOps": { tasks: ["Établir un cadre FinOps (gouvernance, budgets, alertes, tagging)", "Comparer 3 options d’hébergement (on‑prem, IaaS, PaaS)"], toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: false } },
-                    "M365 / Collaboration": { tasks: ["Définir une gouvernance M365 (Teams/SharePoint) pour PME", "Rédiger une politique de classification et DLP"], toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: false } },
-                    "Roadmap & KPI": { tasks: ["Proposer une roadmap trimestrielle SI + KPI", "Élaborer un tableau de bord de la disponibilité et sécurité"], toggles: { risks: true, costs: true, kpi: true, deps: true, limits: true, sources: false } }
-                }
+                    "Gestion de projet": {
+                        tasks: [
+                            "Créer un plan de projet", "Rédiger un cahier des charges", "Analyser les risques", "Préparer une réunion de lancement"
+                        ],
+                        toggles: { risks: true, kpi: true, deps: true }
+                    },
+                    "Développement logiciel": {
+                        tasks: [
+                            "Décrire une architecture logicielle", "Rédiger les spécifications d'une API", "Planifier un sprint", "Définir des cas de test"
+                        ],
+                        toggles: { risks: true, deps: true, limits: true, sources: true }
+                    },
+                    "Cybersécurité": {
+                        tasks: [
+                            "Réaliser une analyse des menaces", "Créer une politique de sécurité", "Rédiger un rapport de vulnérabilité"
+                        ],
+                        toggles: { risks: true, limits: true, listUnknowns: true }
+                    }
+                },
+                teamProfiles: [
+                    { value: "dev", label: "Développeurs", adds: ["Utiliser un ton technique.", "Inclure des exemples de code si pertinent.", "Se concentrer sur les aspects techniques."] },
+                    { value: "biz", label: "Business", adds: ["Utiliser un ton orienté business.", "Se concentrer sur l'impact financier et les bénéfices.", "Éviter le jargon technique."] },
+                    { value: "mkt", label: "Marketing", adds: ["Utiliser un ton créatif et persuasif.", "Mettre l'accent sur les avantages pour le client.", "Présenter l'information de manière visuelle."] }
+                ]
             };
 
-            // --- Sélecteurs centralisés ---
-            const els = {
-                domain: document.getElementById("domain"), format: document.getElementById("format"), detail: document.getElementById("detail"),
-                lang: document.getElementById("lang"), tone: document.getElementById("tone"), role: document.getElementById("role"),
-                newRole: document.getElementById("newRole"), rolesChips: document.getElementById("rolesChips"), addRole: document.getElementById("addRole"),
-                task: document.getElementById("task"), quickTasks: document.getElementById("quickTasks"),
-                company: document.getElementById("company"), sector: document.getElementById("sector"), audience: document.getElementById("audience"),
-                goals: document.getElementById("goals"), constraints: document.getElementById("constraints"), deadline: document.getElementById("deadline"),
-                teamMode: document.getElementById("teamMode"), team: document.getElementById("team"), teamAdds: document.getElementById("teamAdds"),
-                teamSection: document.getElementById("teamSection"), risks: document.getElementById("risks"), costs: document.getElementById("costs"),
-                kpi: document.getElementById("kpi"), deps: document.getElementById("deps"), limits: document.getElementById("limits"),
-                sources: document.getElementById("sources"), allowUnknown: document.getElementById("allowUnknown"), listUnknowns: document.getElementById("listUnknowns"),
-                examples: document.getElementById("examples"), acceptance: document.getElementById("acceptance"), preview: document.getElementById("preview"),
-                copyBtn: document.getElementById("copyBtn"), clearBtn: document.getElementById("clearBtn"), copiedBadge: document.getElementById("copiedBadge"), exportBtn: document.getElementById("exportBtn"),
-                importFile: document.getElementById("importFile"), settingsBtn: document.getElementById("settingsBtn"),
-                settingsPanel: document.getElementById("settings-panel"), mainContent: document.getElementById("main-content"),
-                closeSettingsBtn: document.getElementById("closeSettingsBtn"), bgColor: document.getElementById("bgColor"),
-                bgImageFile: document.getElementById("bgImageFile"), removeBgImage: document.getElementById("removeBgImage"),
-                resetBgColor: document.getElementById("resetBgColor"), titleColor: document.getElementById("titleColor"),
-                resetTitleColor: document.getElementById("resetTitleColor"), mainTitle: document.getElementById("main-title"),
-                logoFile: document.getElementById("logoFile"), logoPreview: document.getElementById("logo-preview"),
-                logoContainer: document.getElementById("logo-container"), removeLogo: document.getElementById("remove-logo"),
-                modalOverlay: document.getElementById("modal-overlay"), modalTitle: document.getElementById("modal-title"),
-                modalText: document.getElementById("modal-text"), modalConfirm: document.getElementById("modal-confirm"),
-                modalCancel: document.getElementById("modal-cancel"),
-                newDomainName: document.getElementById("newDomainName"), newDomainTasks: document.getElementById("newDomainTasks"),
-                newDomainRisks: document.getElementById("newDomainRisks"), newDomainCosts: document.getElementById("newDomainCosts"),
-                newDomainKpi: document.getElementById("newDomainKpi"), newDomainDeps: document.getElementById("newDomainDeps"),
-                newDomainLimits: document.getElementById("newDomainLimits"), newDomainSources: document.getElementById("newDomainSources"),
-                newDomainAllowUnknown: document.getElementById("newDomainAllowUnknown"), newDomainListUnknowns: document.getElementById("newDomainListUnknowns"),
-                addDomain: document.getElementById("addDomain"), domainChips: document.getElementById("domainChips")
-            };
 
             // --- Fonctions utilitaires ---
             const getLS = (key, def) => { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch { return def; } };
@@ -419,7 +508,6 @@
             };
 
             // --- Fonctions de rendu et logique métier ---
-
             const createOptionManager = (type, defaultData, selectEl, inputEl, chipsEl, addBtnEl) => {
                 let options = getLS(`dsi_custom_${type}`, []);
                 const allOptions = () => [...defaultData, ...options.map(o => ({ value: o, label: o }))];
@@ -600,7 +688,7 @@
                 const bgColor = getLS("dsi_bg_color", "#f9fafb");
                 const bgImage = getLS("dsi_bg_image", "");
                 const titleColor = getLS("dsi_title_color", "#1f2937");
-                const logo = getLS("dsi_logo", "");
+                const logo = getLS("dsi_logo", DEFAULT_LOGO);
 
                 document.body.style.backgroundColor = bgColor;
                 document.body.style.backgroundImage = bgImage ? `url(${bgImage})` : 'none';
@@ -632,7 +720,6 @@
                     els.modalOverlay.classList.add("hidden");
                 };
             };
-
 
             // --- Initialisation et événements ---
             const init = () => {
@@ -821,7 +908,7 @@
                                 bgColor: getLS("dsi_bg_color", "#f9fafb"),
                                 bgImage: getLS("dsi_bg_image", ""),
                                 titleColor: getLS("dsi_title_color", "#1f2937"),
-                                logo: getLS("dsi_logo", "")
+                                logo: getLS("dsi_logo", DEFAULT_LOGO)
                             };
 
                             const blob = new Blob([JSON.stringify(config, null, 2)], { type: "application/json" });
@@ -896,4 +983,3 @@
     </script>
 </body>
 </html>
-
