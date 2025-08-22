@@ -47,12 +47,9 @@
 
                     <div class="card">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
+                            <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Domaine (présélection)</label>
-                                <div class="flex gap-2">
-                                    <select id="domain" class="form-input" title="Choisissez un domaine pour prérégler la tâche et les options."></select>
-                                    <button id="applyDomain" class="btn-ghost whitespace-nowrap" title="Appliquer les préréglages du domaine sélectionné.">Appliquer</button>
-                                </div>
+                                <select id="domain" class="form-input" title="Choisissez un domaine pour prérégler la tâche et les options."></select>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Format de sortie</label>
@@ -93,29 +90,29 @@
 
                     <div class="card">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
+                            <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Entreprise</label>
-                                <input id="company" class="form-input" placeholder="Ex: PME de 120 personnes, France" title="Décrivez votre organisation pour un contexte pertinent.">
+                                <textarea id="company" class="form-input min-h-[60px]" placeholder="Ex: PME de 120 personnes, France, secteur de la santé, en forte croissance.&#10;Contient plusieurs filiales avec des SI indépendants."></textarea>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Secteur</label>
-                                <input id="sector" class="form-input" placeholder="Ex: Services B2B" title="Spécifiez le domaine d'activité de l'entreprise.">
+                                <textarea id="sector" class="form-input min-h-[60px]" placeholder="Ex: Services B2B, Industrie manufacturière, Conseil IT spécialisé en cloud."></textarea>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Audience</label>
-                                <input id="audience" class="form-input" placeholder="Ex: Comité de direction et équipes IT" title="À qui s'adresse le document ou la réponse ?">
+                                <textarea id="audience" class="form-input min-h-[60px]" placeholder="Ex: Comité de direction et équipes IT.&#10;À noter : le COMEX est peu familier avec les termes techniques."></textarea>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Objectifs</label>
-                                <input id="goals" class="form-input" placeholder="Ex: Livrable exploitable dès la première version" title="Décrivez le résultat attendu et les objectifs à atteindre.">
+                                <textarea id="goals" class="form-input min-h-[60px]" placeholder="Ex: Produire un livrable exploitable dès la première version.&#10;Faciliter la prise de décision."></textarea>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Contraintes</label>
-                                <input id="constraints" class="form-input" placeholder="Ex: Budget limité, conformité RGPD, ressources IT réduites" title="Indiquez les limitations ou les conditions à respecter.">
+                                <textarea id="constraints" class="form-input min-h-[60px]" placeholder="Ex: Budget limité, conformité RGPD requise, ressources IT réduites.&#10;Pas d'accès à des outils payants."></textarea>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Échéance</label>
-                                <input id="deadline" class="form-input" placeholder="Ex: 2 semaines" title="Spécifiez la date limite pour la réalisation de la tâche.">
+                                <textarea id="deadline" class="form-input min-h-[60px]" placeholder="Ex: 2 semaines.&#10;Doit être présenté au prochain comité de pilotage."></textarea>
                             </div>
                         </div>
                     </div>
@@ -135,6 +132,15 @@
                     </div>
 
                     <div class="card">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Exemples (few‑shot) — optionnel</label>
+                        <textarea id="examples" class="form-input min-h-[100px]" placeholder="Exemple 1:\n— Contexte: PME B2B\n— Sortie: plan en 5 sections\n\nExemple 2:\n— …" title="Fournissez des exemples de prompts et de réponses attendues pour guider l'IA."></textarea>
+                    </div>
+
+                </div>
+
+                <div class="space-y-4">
+
+                    <div class="card">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Critères & sections à inclure</label>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                             <label class="flex items-center gap-2"><input id="risks" type="checkbox" class="h-4 w-4" checked title="Demande à l'IA d'inclure une section sur les risques potentiels."/> <span>Inclure Risques</span></label>
@@ -149,27 +155,10 @@
                     </div>
 
                     <div class="card">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Exemples (few‑shot) — optionnel</label>
-                        <textarea id="examples" class="form-input min-h-[100px]" placeholder="Exemple 1:\n— Contexte: PME B2B\n— Sortie: plan en 5 sections\n\nExemple 2:\n— …" title="Fournissez des exemples de prompts et de réponses attendues pour guider l'IA."></textarea>
-                    </div>
-
-                    <div class="card">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Critères d’acceptation</label>
                         <textarea id="acceptance" class="form-input min-h-[100px]" placeholder="Ex: Couverture complète, cohérence, actionnable, conforme RGPD, pas d’invention." title="Définissez les critères de qualité que le résultat de l'IA doit respecter."></textarea>
                     </div>
 
-                    <div class="flex flex-wrap gap-2">
-                        <button id="copyBtn" class="btn flex items-center gap-2" title="Copie le prompt généré dans le presse-papiers.">Copier le prompt</button>
-                        <button id="exportBtn" class="btn-ghost flex items-center gap-2" title="Exporte la configuration actuelle au format JSON.">Exporter config</button>
-                        <label class="inline-flex items-center gap-2 cursor-pointer btn-ghost" title="Importe une configuration depuis un fichier JSON.">
-                            Importer config <input id="importFile" type="file" accept="application/json" class="hidden" />
-                        </label>
-                        <button id="settingsBtn" class="btn-ghost flex items-center gap-2" title="Ouvrir les paramètres d'apparence et de personnalisation des menus.">Paramètres</button>
-                    </div>
-
-                </div>
-
-                <div class="space-y-4">
                     <div class="card">
                         <div class="flex items-center justify-between mb-2">
                             <h2 class="text-lg font-medium">Aperçu du prompt généré</h2>
@@ -180,6 +169,16 @@
 
                     <div class="card">
                         <p class="text-sm text-gray-500">Astuce : collez ce prompt dans votre outil d’IA. Les balises &lt;contexte&gt;, &lt;instructions&gt;, &lt;exemples&gt; et le bloc ```tache facilitent une interprétation fiable. Utilisez l’export JSON pour partager vos presets avec d’autres DSI.</p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        <button id="copyBtn" class="btn flex items-center gap-2" title="Copie le prompt généré dans le presse-papiers.">Copier le prompt</button>
+                        <button id="clearBtn" class="btn-ghost hidden" title="Effacer toutes les entrées et champs de texte.">Effacer les entrées</button>
+                        <button id="exportBtn" class="btn-ghost flex items-center gap-2" title="Exporte la configuration actuelle au format JSON.">Exporter config</button>
+                        <label class="inline-flex items-center gap-2 cursor-pointer btn-ghost" title="Importe une configuration depuis un fichier JSON.">
+                            Importer config <input id="importFile" type="file" accept="application/json" class="hidden" />
+                        </label>
+                        <button id="settingsBtn" class="btn-ghost flex items-center gap-2" title="Ouvrir les paramètres d'apparence et de personnalisation des menus.">Paramètres</button>
                     </div>
                 </div>
             </div>
@@ -228,6 +227,40 @@
                         <hr/>
 
                         <div class="space-y-6">
+
+                            <div>
+                                <h3 class="font-medium text-gray-700 mb-2">Domaines personnalisés</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nom du domaine</label>
+                                        <input id="newDomainName" class="form-input" placeholder="Ex: Plan de migration ERP" title="Nom du domaine à ajouter."/>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Tâches rapides</label>
+                                        <textarea id="newDomainTasks" class="form-input min-h-[60px]" placeholder="Ex: Rédiger le cahier des charges&#10;Préparer une présentation au COMEX" title="Entrez une ou plusieurs tâches rapides, séparées par un saut de ligne."></textarea>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Toggles par défaut</label>
+                                        <div class="grid grid-cols-2 gap-2 text-sm">
+                                            <label class="flex items-center gap-2"><input id="newDomainRisks" type="checkbox" class="h-4 w-4"/> <span>Risques</span></label>
+                                            <label class="flex items-center gap-2"><input id="newDomainCosts" type="checkbox" class="h-4 w-4"/> <span>Coûts</span></label>
+                                            <label class="flex items-center gap-2"><input id="newDomainKpi" type="checkbox" class="h-4 w-4"/> <span>KPI</span></label>
+                                            <label class="flex items-center gap-2"><input id="newDomainDeps" type="checkbox" class="h-4 w-4"/> <span>Dépendances</span></label>
+                                            <label class="flex items-center gap-2"><input id="newDomainLimits" type="checkbox" class="h-4 w-4"/> <span>Hypothèses/Limites</span></label>
+                                            <label class="flex items-center gap-2"><input id="newDomainSources" type="checkbox" class="h-4 w-4"/> <span>Sources</span></label>
+                                            <label class="flex items-center gap-2"><input id="newDomainAllowUnknown" type="checkbox" class="h-4 w-4"/> <span>Autoriser “Je ne sais pas”</span></label>
+                                            <label class="flex items-center gap-2"><input id="newDomainListUnknowns" type="checkbox" class="h-4 w-4"/> <span>Lister Inconnues</span></label>
+                                        </div>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <button id="addDomain" class="btn-ghost w-full">+ Ajouter le domaine</button>
+                                    </div>
+                                </div>
+                                <div id="domainChips" class="mt-3 flex flex-wrap gap-2"></div>
+                            </div>
+                            
+                            <hr/>
+
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Formats de sortie</label>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -346,8 +379,8 @@
                 kpi: document.getElementById("kpi"), deps: document.getElementById("deps"), limits: document.getElementById("limits"),
                 sources: document.getElementById("sources"), allowUnknown: document.getElementById("allowUnknown"), listUnknowns: document.getElementById("listUnknowns"),
                 examples: document.getElementById("examples"), acceptance: document.getElementById("acceptance"), preview: document.getElementById("preview"),
-                copyBtn: document.getElementById("copyBtn"), copiedBadge: document.getElementById("copiedBadge"), exportBtn: document.getElementById("exportBtn"),
-                importFile: document.getElementById("importFile"), applyDomain: document.getElementById("applyDomain"), settingsBtn: document.getElementById("settingsBtn"),
+                copyBtn: document.getElementById("copyBtn"), clearBtn: document.getElementById("clearBtn"), copiedBadge: document.getElementById("copiedBadge"), exportBtn: document.getElementById("exportBtn"),
+                importFile: document.getElementById("importFile"), settingsBtn: document.getElementById("settingsBtn"),
                 settingsPanel: document.getElementById("settings-panel"), mainContent: document.getElementById("main-content"),
                 closeSettingsBtn: document.getElementById("closeSettingsBtn"), bgColor: document.getElementById("bgColor"),
                 bgImageFile: document.getElementById("bgImageFile"), removeBgImage: document.getElementById("removeBgImage"),
@@ -357,7 +390,13 @@
                 logoContainer: document.getElementById("logo-container"), removeLogo: document.getElementById("remove-logo"),
                 modalOverlay: document.getElementById("modal-overlay"), modalTitle: document.getElementById("modal-title"),
                 modalText: document.getElementById("modal-text"), modalConfirm: document.getElementById("modal-confirm"),
-                modalCancel: document.getElementById("modal-cancel")
+                modalCancel: document.getElementById("modal-cancel"),
+                newDomainName: document.getElementById("newDomainName"), newDomainTasks: document.getElementById("newDomainTasks"),
+                newDomainRisks: document.getElementById("newDomainRisks"), newDomainCosts: document.getElementById("newDomainCosts"),
+                newDomainKpi: document.getElementById("newDomainKpi"), newDomainDeps: document.getElementById("newDomainDeps"),
+                newDomainLimits: document.getElementById("newDomainLimits"), newDomainSources: document.getElementById("newDomainSources"),
+                newDomainAllowUnknown: document.getElementById("newDomainAllowUnknown"), newDomainListUnknowns: document.getElementById("newDomainListUnknowns"),
+                addDomain: document.getElementById("addDomain"), domainChips: document.getElementById("domainChips")
             };
 
             // --- Fonctions utilitaires ---
@@ -426,6 +465,64 @@
                 return { refresh, add };
             };
 
+            const domainManager = (() => {
+                let customDomains = getLS("dsi_custom_domains", {});
+                
+                const getDomainPresets = () => {
+                    const allPresets = { ...DATA.domainPresets };
+                    Object.entries(customDomains).forEach(([key, value]) => {
+                        allPresets[key] = value;
+                    });
+                    return allPresets;
+                };
+
+                const refresh = () => {
+                    const allPresets = getDomainPresets();
+                    fillOptions(els.domain, Object.keys(allPresets).map(k => ({ value: k, label: k })));
+                    
+                    els.domainChips.innerHTML = Object.keys(customDomains).map(d =>
+                        `<span class="chip">${d} <button title="Supprimer le domaine" data-domain="${d}" class="text-gray-400 hover:text-red-600 transition-colors">✕</button></span>`
+                    ).join('');
+
+                    els.domainChips.querySelectorAll("button[data-domain]").forEach(btn => {
+                        btn.addEventListener("click", () => {
+                            const domainToRemove = btn.getAttribute("data-domain");
+                            delete customDomains[domainToRemove];
+                            setLS("dsi_custom_domains", customDomains);
+                            refresh();
+                        });
+                    });
+                };
+
+                const add = () => {
+                    const name = els.newDomainName.value.trim();
+                    if (!name) return;
+
+                    const newDomain = {
+                        tasks: els.newDomainTasks.value.split('\n').map(t => t.trim()).filter(t => t),
+                        toggles: {
+                            risks: els.newDomainRisks.checked, costs: els.newDomainCosts.checked,
+                            kpi: els.newDomainKpi.checked, deps: els.newDomainDeps.checked,
+                            limits: els.newDomainLimits.checked, sources: els.newDomainSources.checked,
+                            allowUnknown: els.newDomainAllowUnknown.checked, listUnknowns: els.newDomainListUnknowns.checked
+                        }
+                    };
+
+                    customDomains[name] = newDomain;
+                    setLS("dsi_custom_domains", customDomains);
+                    
+                    // Reset fields
+                    els.newDomainName.value = "";
+                    els.newDomainTasks.value = "";
+                    const toggles = [els.newDomainRisks, els.newDomainCosts, els.newDomainKpi, els.newDomainDeps, els.newDomainLimits, els.newDomainSources, els.newDomainAllowUnknown, els.newDomainListUnknowns];
+                    toggles.forEach(t => t.checked = false);
+
+                    refresh();
+                };
+
+                return { refresh, add, getDomainPresets };
+            })();
+            
             const roleManager = createOptionManager('role', DATA.defaultRoles.map(r => ({ value: r, label: r })), els.role, els.newRole, els.rolesChips, els.addRole);
             const formatManager = createOptionManager('format', DATA.outputFormats, els.format, document.querySelector('input[data-type="format"]'), document.getElementById('formatChips'), document.querySelector('button[data-add="format"]'));
             const detailManager = createOptionManager('detail', DATA.detailLevels, els.detail, document.querySelector('input[data-type="detail"]'), document.getElementById('detailChips'), document.querySelector('button[data-add="detail"]'));
@@ -433,7 +530,8 @@
             const langManager = createOptionManager('lang', DATA.languages, els.lang, document.querySelector('input[data-type="lang"]'), document.getElementById('langChips'), document.querySelector('button[data-add="lang"]'));
 
             const renderQuickTasks = () => {
-                const tasks = DATA.domainPresets[els.domain.value]?.tasks || [];
+                const presets = domainManager.getDomainPresets();
+                const tasks = presets[els.domain.value]?.tasks || [];
                 els.quickTasks.innerHTML = tasks.map(qt =>
                     `<button class="text-xs px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors">${qt}</button>`
                 ).join('');
@@ -478,7 +576,7 @@
                     if (profile) instructions.push(...profile.adds);
                 }
 
-                const context = `Entreprise: ${els.company.value}\nSecteur: ${els.sector.value}\nAudience: ${els.audience.value}${els.teamMode.checked ? ` (adapter au public: ${els.team.options[els.team.selectedIndex]?.text})` : ""}\nObjectifs: ${els.goals.value}\nContraintes: ${els.constraints.value}\nÉchéance: ${els.deadline.value}`;
+                const context = `Entreprise: ${els.company.value.trim()}\nSecteur: ${els.sector.value.trim()}\nAudience: ${els.audience.value.trim()}${els.teamMode.checked ? ` (adapter au public: ${els.team.options[els.team.selectedIndex]?.text})` : ""}\nObjectifs: ${els.goals.value.trim()}\nContraintes: ${els.constraints.value.trim()}\nÉchéance: ${els.deadline.value.trim()}`;
                 
                 promptParts.push(`\n<contexte>\n${context}\n</contexte>`);
                 promptParts.push(`\n<instructions>\n${instructions.join('\n')}\n</instructions>`);
@@ -539,12 +637,12 @@
             // --- Initialisation et événements ---
             const init = () => {
                 // Remplir et gérer les options
+                domainManager.refresh();
                 roleManager.refresh();
                 formatManager.refresh();
                 detailManager.refresh();
                 toneManager.refresh();
                 langManager.refresh();
-                fillOptions(els.domain, Object.keys(DATA.domainPresets).map(k => ({ value: k, label: k })));
                 fillOptions(els.team, DATA.teamProfiles.map(p => ({ value: p.value, label: p.label })));
 
                 // Charger les valeurs persistantes
@@ -574,7 +672,26 @@
                         });
                     }
                 });
-                els.domain.addEventListener("change", renderQuickTasks);
+                els.domain.addEventListener("change", () => {
+                    const preset = domainManager.getDomainPresets()[els.domain.value];
+                    if (!preset) return;
+                    showModal(
+                        "Appliquer le domaine",
+                        "Cette action va écraser les paramètres de tâche et de critères. Continuer ?",
+                        () => {
+                            if (preset.tasks?.[0]) {
+                                els.task.value = preset.tasks[0];
+                                setLS("dsi_task", els.task.value);
+                            }
+                            Object.entries(preset.toggles || {}).forEach(([key, checked]) => {
+                                els[key].checked = checked;
+                                setLS(`dsi_${key}`, checked);
+                            });
+                            renderQuickTasks();
+                            updatePreview();
+                        }
+                    );
+                });
                 els.teamMode.addEventListener("change", renderTeamAdds);
                 els.team.addEventListener("change", renderTeamAdds);
                 
@@ -636,29 +753,10 @@
                     );
                 });
 
+                // Gérer les actions sur les domaines personnalisés
+                els.addDomain.addEventListener("click", domainManager.add);
 
                 // Boutons d'action
-                els.applyDomain.addEventListener("click", () => {
-                    const preset = DATA.domainPresets[els.domain.value];
-                    if (!preset) return;
-                    showModal(
-                        "Appliquer le domaine",
-                        "Cette action va écraser les paramètres de tâche et de critères. Continuer ?",
-                        () => {
-                            if (preset.tasks?.[0]) {
-                                els.task.value = preset.tasks[0];
-                                setLS("dsi_task", els.task.value);
-                            }
-                            Object.entries(preset.toggles || {}).forEach(([key, checked]) => {
-                                els[key].checked = checked;
-                                setLS(`dsi_${key}`, checked);
-                            });
-                            renderQuickTasks();
-                            updatePreview();
-                        }
-                    );
-                });
-
                 els.copyBtn.addEventListener("click", async () => {
                     showModal(
                         "Copier le prompt",
@@ -667,10 +765,38 @@
                             try {
                                 await navigator.clipboard.writeText(els.preview.textContent);
                                 els.copiedBadge.classList.remove("hidden");
+                                els.clearBtn.classList.remove("hidden");
                                 setTimeout(() => els.copiedBadge.classList.add("hidden"), 2000);
                             } catch {
                                 alert("Impossible de copier. Sélectionnez le texte et copiez manuellement.");
                             }
+                        }
+                    );
+                });
+
+                els.clearBtn.addEventListener("click", () => {
+                    showModal(
+                        "Effacer les entrées",
+                        "Ceci va effacer toutes les entrées, y compris le rôle, la tâche, le contexte et les exemples.",
+                        () => {
+                            const textInputs = [els.task, els.company, els.sector, els.audience, els.goals, els.constraints, els.deadline, els.examples, els.acceptance];
+                            textInputs.forEach(input => {
+                                input.value = '';
+                                setLS(`dsi_${input.id}`, '');
+                            });
+                            const checkboxes = [els.risks, els.costs, els.kpi, els.deps, els.limits, els.sources, els.allowUnknown, els.listUnknowns];
+                            checkboxes.forEach(cb => {
+                                cb.checked = false;
+                                setLS(`dsi_${cb.id}`, false);
+                            });
+                            // Réinitialiser les menus à la première option
+                            const selects = [els.domain, els.format, els.detail, els.lang, els.tone, els.role, els.team];
+                            selects.forEach(select => {
+                                select.selectedIndex = 0;
+                                setLS(`dsi_${select.id}`, select.value);
+                            });
+                            els.clearBtn.classList.add("hidden");
+                            updatePreview();
                         }
                     );
                 });
@@ -688,6 +814,7 @@
                             config.custom_details = getLS("dsi_custom_detail", []);
                             config.custom_tones = getLS("dsi_custom_tone", []);
                             config.custom_langs = getLS("dsi_custom_lang", []);
+                            config.custom_domains = getLS("dsi_custom_domains", {});
                             
                             // Inclure les paramètres visuels
                             config.visualSettings = {
@@ -736,6 +863,7 @@
                                 if (config.custom_details) { setLS("dsi_custom_detail", config.custom_details); detailManager.refresh(); }
                                 if (config.custom_tones) { setLS("dsi_custom_tone", config.custom_tones); toneManager.refresh(); }
                                 if (config.custom_langs) { setLS("dsi_custom_lang", config.custom_langs); langManager.refresh(); }
+                                if (config.custom_domains) { setLS("dsi_custom_domains", config.custom_domains); domainManager.refresh(); }
                                 
                                 // Import des paramètres visuels
                                 if (config.visualSettings) {
