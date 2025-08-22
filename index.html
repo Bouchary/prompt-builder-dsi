@@ -35,6 +35,15 @@
         .hidden {
             display: none;
         }
+        .accordion-header {
+            cursor: pointer;
+        }
+        .accordion-content {
+            display: none;
+        }
+        .accordion-content.active {
+            display: block;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -70,6 +79,7 @@
     <div id="main-content" class="container mx-auto p-4 md:p-8 pt-20 relative">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-6">
+
                 <div class="bg-white p-6 rounded-lg shadow">
                     <h2 class="text-xl font-semibold mb-4">Contexte et Cibles</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -101,102 +111,145 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-lg shadow">
-                    <h2 class="text-xl font-semibold mb-4">Définition de la tâche</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label for="domain" class="block text-sm font-medium text-gray-700">Domaine d'expertise</label>
-                            <select id="domain" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
+                    <h2 class="accordion-header text-xl font-semibold mb-4 flex justify-between items-center">
+                        Définition du Prompt
+                        <svg class="w-5 h-5 transition-transform duration-200 transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </h2>
+                    <div class="accordion-content active space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div>
+                                <label for="domain" class="block text-sm font-medium text-gray-700">Domaine d'expertise</label>
+                                <select id="domain" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
+                            </div>
+                            <div>
+                                <label for="role" class="block text-sm font-medium text-gray-700">Rôle de l'IA</label>
+                                <select id="role" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
+                            </div>
+                            <div>
+                                <label for="tone" class="block text-sm font-medium text-gray-700">Ton</label>
+                                <select id="tone" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
+                            </div>
+                            <div>
+                                <label for="lang" class="block text-sm font-medium text-gray-700">Langue</label>
+                                <select id="lang" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
+                            </div>
+                            <div>
+                                <label for="format" class="block text-sm font-medium text-gray-700">Format de sortie</label>
+                                <select id="format" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
+                            </div>
+                            <div>
+                                <label for="detail" class="block text-sm font-medium text-gray-700">Niveau de détail</label>
+                                <select id="detail" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
+                            </div>
                         </div>
-                        <div>
-                            <label for="role" class="block text-sm font-medium text-gray-700">Rôle de l'IA</label>
-                            <select id="role" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
-                        </div>
-                        <div>
-                            <label for="format" class="block text-sm font-medium text-gray-700">Format de sortie</label>
-                            <select id="format" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
-                        </div>
-                        <div>
-                            <label for="detail" class="block text-sm font-medium text-gray-700">Niveau de détail</label>
-                            <select id="detail" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
-                        </div>
-                        <div>
-                            <label for="tone" class="block text-sm font-medium text-gray-700">Ton</label>
-                            <select id="tone" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
-                        </div>
-                        <div>
-                            <label for="lang" class="block text-sm font-medium text-gray-700">Langue</label>
-                            <select id="lang" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
+                        <div class="mt-4">
+                            <label for="length" class="block text-sm font-medium text-gray-700">Longueur (facultatif)</label>
+                            <input type="text" id="length" placeholder="ex: 500 mots, 3 paragraphes, 10 phrases" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
                         </div>
                     </div>
+                </div>
 
-                    <div class="mt-4 flex items-center justify-between">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="accordion-header text-xl font-semibold mb-4 flex justify-between items-center">
+                        Stratégies Avancées
+                        <svg class="w-5 h-5 transition-transform duration-200 transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </h2>
+                    <div class="accordion-content space-y-4">
+                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                            <input type="checkbox" id="chainOfThought" class="h-4 w-4 text-indigo-600 rounded">
+                            <span class="ml-2">Raisonnement Étape par Étape (Chain of Thought)</span>
+                        </label>
+                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                            <input type="checkbox" id="genKnowledge" class="h-4 w-4 text-indigo-600 rounded">
+                            <span class="ml-2">Génération de Connaissances (Generated Knowledge)</span>
+                        </label>
+                        <div id="genKnowledgeFields" class="ml-6 mt-2 hidden">
+                            <label for="knowledgeSubject" class="block text-sm font-medium text-gray-700">Sujet à synthétiser</label>
+                            <input type="text" id="knowledgeSubject" placeholder="ex: l'histoire du framework React" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                        </div>
                         <label class="flex items-center text-sm font-medium text-gray-700">
-                            <input type="checkbox" id="teamMode" class="h-4 w-4 text-indigo-600 rounded">
-                            <span class="ml-2">Mode équipe</span>
-                        </label>
-                        <select id="team" class="w-2/3 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
-                    </div>
-                    <div id="team-section" class="hidden mt-4 bg-gray-50 p-4 rounded-lg">
-                        <h4 class="text-sm font-semibold mb-2">Ajouts au prompt :</h4>
-                        <ul id="team-adds" class="text-sm text-gray-600 list-disc list-inside"></ul>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <h2 class="text-xl font-semibold mb-4">Critères et options</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <label class="flex items-center">
-                            <input type="checkbox" id="risks" class="h-4 w-4 text-indigo-600 rounded">
-                            <span class="ml-2 text-gray-700">Inclure les risques</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" id="costs" class="h-4 w-4 text-indigo-600 rounded">
-                            <span class="ml-2 text-gray-700">Estimer les coûts/TCO</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" id="kpi" class="h-4 w-4 text-indigo-600 rounded">
-                            <span class="ml-2 text-gray-700">Inclure des KPI/mesures de succès</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" id="deps" class="h-4 w-4 text-indigo-600 rounded">
-                            <span class="ml-2 text-gray-700">Mentionner les dépendances</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" id="limits" class="h-4 w-4 text-indigo-600 rounded">
-                            <span class="ml-2 text-gray-700">Indiquer les limites et hypothèses</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" id="sources" class="h-4 w-4 text-indigo-600 rounded">
-                            <span class="ml-2 text-gray-700">Fournir des sources ou références</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" id="allowUnknown" class="h-4 w-4 text-indigo-600 rounded">
-                            <span class="ml-2 text-gray-700">Répondre "Je ne sais pas" si inconnu</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" id="listUnknowns" class="h-4 w-4 text-indigo-600 rounded">
-                            <span class="ml-2 text-gray-700">Lister les inconnues</span>
+                            <input type="checkbox" id="selfReflection" class="h-4 w-4 text-indigo-600 rounded">
+                            <span class="ml-2">Auto-évaluation (Self-Reflection)</span>
                         </label>
                     </div>
                 </div>
 
                 <div class="bg-white p-6 rounded-lg shadow">
-                    <h2 class="text-xl font-semibold mb-4">Description de la tâche</h2>
-                    <div id="quick-tasks" class="flex flex-wrap gap-2 mb-4"></div>
-                    <label for="task" class="sr-only">Description de la tâche</label>
-                    <textarea id="task" rows="6" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></textarea>
+                    <h2 class="accordion-header text-xl font-semibold mb-4 flex justify-between items-center">
+                        Tâche et Critères
+                        <svg class="w-5 h-5 transition-transform duration-200 transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </h2>
+                    <div class="accordion-content space-y-4">
+                        <div id="quick-tasks" class="flex flex-wrap gap-2 mb-4"></div>
+                        <div>
+                            <label for="task" class="block text-sm font-medium text-gray-700">Description de la tâche</label>
+                            <textarea id="task" rows="6" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" placeholder="Formulez de manière claire, précise et sans ambiguïté."></textarea>
+                        </div>
+                        <div>
+                            <label for="acceptance" class="block text-sm font-medium text-gray-700">Critères d'acceptation</label>
+                            <p class="text-xs text-gray-500 mb-2">Décomposez la tâche en étapes spécifiques ou décrivez les critères pour considérer que la réponse est réussie.</p>
+                            <textarea id="acceptance" rows="3" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></textarea>
+                        </div>
+                        <div>
+                            <label for="examples" class="block text-sm font-medium text-gray-700">Exemples de sortie (Few-shot Prompting)</label>
+                            <p class="text-xs text-gray-500 mb-2">Fournissez un ou plusieurs exemples de la sortie souhaitée pour guider le modèle.</p>
+                            <textarea id="examples" rows="6" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></textarea>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="bg-white p-6 rounded-lg shadow">
-                    <h2 class="text-xl font-semibold mb-4">Critères d'acceptation</h2>
-                    <p class="text-sm text-gray-500 mb-2">Décrivez les critères pour considérer que la réponse est réussie.</p>
-                    <textarea id="acceptance" rows="3" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></textarea>
-                </div>
-
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <h2 class="text-xl font-semibold mb-4">Exemples de sortie</h2>
-                    <p class="text-sm text-gray-500 mb-2">Fournissez un ou plusieurs exemples de la sortie souhaitée.</p>
-                    <textarea id="examples" rows="6" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></textarea>
+                    <h2 class="accordion-header text-xl font-semibold mb-4 flex justify-between items-center">
+                        Options supplémentaires
+                        <svg class="w-5 h-5 transition-transform duration-200 transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </h2>
+                    <div class="accordion-content space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="risks" class="h-4 w-4 text-indigo-600 rounded">
+                                <span class="ml-2 text-gray-700">Inclure les risques</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="costs" class="h-4 w-4 text-indigo-600 rounded">
+                                <span class="ml-2 text-gray-700">Estimer les coûts/TCO</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="kpi" class="h-4 w-4 text-indigo-600 rounded">
+                                <span class="ml-2 text-gray-700">Inclure des KPI/mesures de succès</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="deps" class="h-4 w-4 text-indigo-600 rounded">
+                                <span class="ml-2 text-gray-700">Mentionner les dépendances</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="limits" class="h-4 w-4 text-indigo-600 rounded">
+                                <span class="ml-2 text-gray-700">Indiquer les limites et hypothèses</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="sources" class="h-4 w-4 text-indigo-600 rounded">
+                                <span class="ml-2 text-gray-700">Fournir des sources ou références</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="allowUnknown" class="h-4 w-4 text-indigo-600 rounded">
+                                <span class="ml-2 text-gray-700">Répondre "Je ne sais pas" si inconnu</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="listUnknowns" class="h-4 w-4 text-indigo-600 rounded">
+                                <span class="ml-2 text-gray-700">Lister les inconnues</span>
+                            </label>
+                        </div>
+                        <div class="mt-4 flex items-center justify-between">
+                            <label class="flex items-center text-sm font-medium text-gray-700">
+                                <input type="checkbox" id="teamMode" class="h-4 w-4 text-indigo-600 rounded">
+                                <span class="ml-2">Mode équipe</span>
+                            </label>
+                            <select id="team" class="w-2/3 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></select>
+                        </div>
+                        <div id="team-section" class="hidden mt-4 bg-gray-50 p-4 rounded-lg">
+                            <h4 class="text-sm font-semibold mb-2">Ajouts au prompt :</h4>
+                            <ul id="team-adds" class="text-sm text-gray-600 list-disc list-inside"></ul>
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -346,7 +399,7 @@
     </div>
     
     <script>
-        const DEFAULT_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAABRCAYAAACi2dYkAAAACXBIWXMAAAsTAAALEwEAmpwYAAADwUlEQVR4nO2bv0oEQRTHf16y9wQ7Q+wJbMv2BHaE2BPaEwQRS3hL7J1oQax8E3sJ+wE22FqYhYVs9s5lV683s92d3Z3N7vvgwN58b/Z8M5vNdm8YhmEYhmEYhmEYhmEYhmEYhmEYhmEYhmEYhmEYhmGYA4rW6/UGp/v5eZk2j8drg8f29vbL1j/Q+B6v1+u+x+12OxwMBr4EAK/Hk8P462/o+fCjYt6+vj6L+f+g58OPxnz/8+94HwD+f/h+f3H1eH+r2e293W1e/f7rVnsPqP8D2B/B/gD2j8L/B+2uNqj9gNrvD6i+gOjvD6D1B9gPoD+F3g+g/QfUD6D9H62/r+sP+o3Wf7n/3+n8n6f9b/h/h/7/Hfr/P/3/j/p/w/4fTP9T8f8A+B/AfgD8H8B+APxLof8B9Ifh/gH0h8B+APRD0A9CPQj1JtQTUL8H9SfQH0J9CPQh1JtAHQj1JtD/B+h/QPoPUP8H0P8H0P8H0N8D+v/Q/gPoF9gvoJ9AvQP1CehPoH4B9UnoT6B+APWJ6E+gPoH6BOpPof4H6A+g/gD1R+j/X6wPoH4A9UfoB6AfoH4B+gHoB6AfoB+A/gD6AegHoB+A/gD6AegnoJ6AegLqD1h/QH1B9QHUH1AfgJ+AHgLqD6A/gC4A/f+g/wG6AuAH/6+pPwD9/2j/I+m+I/lP2A+g/4B0A/gA/gPqA/APoD+A+gPoD6B/AX0A+gPoC6B/APoB9BvQZ0GdAnQF1CtQPUGdAnQF1BdQXUFdAXQF1AtQJUCdAnQJ1DdQTUG9AvQF1BfQTUG9AHUF9ANwA9APQHUAPADUAfQDwAVAHQD8AdAPQD0A/AHwA+AHQA9AdgA5AdwA6ANgB0w+A3QBwA8AdAHeD2G9A9APQD0w/AH4A+gHoB6AeQHYA2wPoB6IfgB6AegH4AegHwA9APQD0A+gHQD8A9APQD0A/AHwA+AHYA+AHYD8A9gPQD8AegH8A+gPoA9A/AD4A/APoD6A/APgD6APQJgP4B8A+gXwB8AvQJ0CdAHwD7AegTUCdAewD6APQHoJ0B9QHoD6BfAHoD+APoD6A/AOgPQJ0B6A8A+gPQP+E+B/d6g+C/3rD8I+G+A3wB/gHoF7/jLgAAAABJRU5ErkJggg==";
+        const DEFAULT_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAABRCAYAAACi2dYkAAAACXBIWXMAAAsTAAALEwEAmpwYAAADwUlEQVR4nO2bv0oEQRTHf16y9wQ7Q+wJbMv2BHaE2BPaEwQRS3hL7J1oQax8E3sJ+wE22FqYhYVs9s5lV683s92d3Z3N7vvgwN58b/Z8M5vNdm8YhmEYhmEYhmEYhmEYhmEYhmEYhmEYhmEYhmEYhmGYA4rW6/UGp/v5eZk2j8drg8f29vbL1j/Q+B6v1+u+x+12OxwMBr4EAK/Hk8P462/o+fCjYt6+vj6L+f+g58OPxnz/8+94HwD+f/h+f3H1eH+r2e293W1e/f7rVnsPqP8D2B/B/gD2j8L/B+2uNqj9gNrvD6i+gOjvD6D1B9gPoD+F3g+g/QfUD6D9H62/r+sP+o3Wf7n/3+n8n6f9b/h/h/7/Hfr/P/3/j/p/w/4fTP9T8f8A+B/AfgD8H8B+APxLof8B9Ifh/gH0h8B+APRD0A9CPQj1JtQTUL8H9SfQH0J9CPQh1JtAHQj1JtD/B+h/QPoPUP8H0P8H0P8D0N8D+v/Q/gPoF9gvoJ9AvQP1CehPoH4B9UnoT6B+APWJ6E+gPoH6BOpPof4H6A+g/gD1R+j/X6wPoH4A9UfoB6AfoH4B+gHoB6AfoB+A/gD6AegHoB+A/gD6AegnoJ6AegLqD1h/QH1B9QHUH1AfgJ+AHgLqD6A/gC4A/f+g/wG6AuAH/6+pPwD9/2j/I+m+I/lP2A+g/4B0A/gA/gPqA/APoD+A+gPoD6B/AX0A+gPoC6B/APoB9BvQZ0GdAnQF1CtQPUGdAnQF1BdQXUFdAXQF1AtQJUCdAnQJ1DdQTUG9AvQF1BfQTUG9AHUF9ANwA9APQHUAPADUAfQDwAVAHQD8AdAPQD0A/AHwA+AHQA9AdgA5AdwA6ANgB0w+A3QBwA8AdAHeD2G9A9APQD0w/AH4A+gHoB6AeQHYA2wPoB6IfgB6AegH4AegHwA9APQD0A+gHQD8A9APQD0A/AHwA+AHYA+AHYD8A9gPQD8AegH8A+gPoA9A/AD4A/APoD6A/APgD6APQJgP4B8A+gXwB8AvQJ0CdAHwD7AegTUCdAewD6APQHoJ0B9QHoD6BfAHoD+APoD6A/AOgPQJ0B6A8A+gPQP+E+B/d6g+C/3rD8I+G+A3wB/gHoF7/jLgAAAABJRU5ErkJggg==";
 
         document.addEventListener('DOMContentLoaded', () => {
             const els = {
@@ -379,6 +432,7 @@
                 task: document.getElementById("task"),
                 acceptance: document.getElementById("acceptance"),
                 examples: document.getElementById("examples"),
+                length: document.getElementById("length"),
 
                 // Checkbox Toggles
                 risks: document.getElementById("risks"),
@@ -393,6 +447,12 @@
                 team: document.getElementById("team"),
                 teamSection: document.getElementById("team-section"),
                 teamAdds: document.getElementById("team-adds"),
+                chainOfThought: document.getElementById("chainOfThought"),
+                genKnowledge: document.getElementById("genKnowledge"),
+                knowledgeSubject: document.getElementById("knowledgeSubject"),
+                genKnowledgeFields: document.getElementById("genKnowledgeFields"),
+                selfReflection: document.getElementById("selfReflection"),
+
 
                 // Custom Options
                 newRole: document.getElementById("newRole"),
@@ -505,6 +565,17 @@
                         elem.value = value;
                     }
                 }
+            };
+            
+            const handleAccordion = () => {
+                document.querySelectorAll('.accordion-header').forEach(header => {
+                    header.addEventListener('click', () => {
+                        const content = header.nextElementSibling;
+                        const icon = header.querySelector('svg');
+                        content.classList.toggle('active');
+                        icon.classList.toggle('rotate-180');
+                    });
+                });
             };
 
             // --- Fonctions de rendu et logique métier ---
@@ -641,13 +712,25 @@
             const assemblePrompt = () => {
                 const promptParts = [];
 
-                promptParts.push(`Tu es ${els.role.value}. Ta mission est de réaliser la tâche décrite en respectant strictement le format et les critères ci‑dessous.`);
+                promptParts.push(`Tu es ${els.role.value}. Ta mission est de réaliser la tâche décrite en respectant strictement le format et les critères ci-dessous.`);
+
+                // Ajout des stratégies avancées en premier
+                if (els.genKnowledge.checked && els.knowledgeSubject.value.trim()) {
+                    promptParts.push(`\n<connaissances_prealables>\nRésume d'abord les éléments essentiels à propos de "${els.knowledgeSubject.value.trim()}". Ensuite, utilise ces informations pour accomplir ta mission.\n</connaissances_prealables>`);
+                }
+
+                if (els.chainOfThought.checked) {
+                    promptParts.push(`\n<raisonnement>\nAvant de donner ta réponse, décris ton raisonnement et les étapes que tu vas suivre pour y parvenir. Précise chaque étape en détail.\n</raisonnement>`);
+                }
 
                 const instructions = [`Sortie attendue: ${els.format.options[els.format.selectedIndex]?.text}`];
+                if (els.length.value.trim()) {
+                    instructions.push(`Longueur de la réponse: ${els.length.value.trim()}.`);
+                }
                 instructions.push(`Rédige en ${els.lang.options[els.lang.selectedIndex]?.text}.`);
                 instructions.push(`Ton: ${els.tone.options[els.tone.selectedIndex]?.text}.`);
                 instructions.push(`Niveau de détail: ${els.detail.options[els.detail.selectedIndex]?.text}.`);
-
+                
                 const toggleInstructions = {
                     risks: "Inclure une section Risques.", costs: "Inclure estimation des Coûts/TCO si pertinent.",
                     kpi: "Inclure des KPI/mesures de succès.", deps: "Mentionner les dépendances et prérequis.",
@@ -670,11 +753,15 @@
                 promptParts.push(`\n<instructions>\n${instructions.join('\n')}\n</instructions>`);
 
                 if (els.examples.value.trim()) {
-                    promptParts.push(`\n<exemples>\n\n${els.examples.value.trim()}\n</exemples>`);
+                    promptParts.push(`\n<exemples_de_sortie>\n\n${els.examples.value.trim()}\n</exemples_de_sortie>`);
                 }
                 
                 promptParts.push(`\n<criteres_acceptation>\n${els.acceptance.value}\n</criteres_acceptation>`);
                 promptParts.push(`\n\`\`\`tache\n${els.task.value}\n\`\`\``);
+
+                if (els.selfReflection.checked) {
+                    promptParts.push(`\n<auto_evaluation>\nAprès ta réponse, fais une auto-évaluation et indique si tu penses avoir couvert tous les points essentiels.\n</auto_evaluation>`);
+                }
 
                 return promptParts.join('\n\n');
             };
@@ -723,6 +810,8 @@
 
             // --- Initialisation et événements ---
             const init = () => {
+                handleAccordion();
+
                 // Remplir et gérer les options
                 domainManager.refresh();
                 roleManager.refresh();
@@ -734,13 +823,18 @@
 
                 // Charger les valeurs persistantes
                 const persistenceMap = {
-                    domain: "dsi_domain", format: "dsi_format", detail: "dsi_detail", lang: "dsi_lang", tone: "dsi_tone",
-                    role: "dsi_role", task: "dsi_task", company: "dsi_company", sector: "dsi_sector", audience: "dsi_audience",
-                    goals: "dsi_goals", constraints: "dsi_constraints", deadline: "dsi_deadline", teamMode: "dsi_teamMode",
-                    team: "dsi_team", risks: "dsi_risks", costs: "dsi_costs", kpi: "dsi_kpi", deps: "dsi_deps",
-                    limits: "dsi_limits", sources: "dsi_sources", allowUnknown: "dsi_allowUnknown", listUnknowns: "dsi_listUnknowns",
-                    examples: "dsi_examples", acceptance: "dsi_acceptance",
+                    company: "dsi_company", sector: "dsi_sector", audience: "dsi_audience",
+                    goals: "dsi_goals", constraints: "dsi_constraints", deadline: "dsi_deadline",
+                    domain: "dsi_domain", role: "dsi_role", format: "dsi_format", detail: "dsi_detail",
+                    tone: "dsi_tone", lang: "dsi_lang", task: "dsi_task",
+                    acceptance: "dsi_acceptance", examples: "dsi_examples",
+                    risks: "dsi_risks", costs: "dsi_costs", kpi: "dsi_kpi", deps: "dsi_deps",
+                    limits: "dsi_limits", sources: "dsi_sources", allowUnknown: "dsi_allowUnknown",
+                    listUnknowns: "dsi_listUnknowns", teamMode: "dsi_teamMode", team: "dsi_team",
+                    length: "dsi_length", chainOfThought: "dsi_chainOfThought", genKnowledge: "dsi_genKnowledge",
+                    knowledgeSubject: "dsi_knowledgeSubject", selfReflection: "dsi_selfReflection",
                 };
+
                 Object.entries(persistenceMap).forEach(([elKey, lsKey]) => {
                     loadValue(els[elKey], lsKey, els[elKey]?.value);
                 });
@@ -759,6 +853,12 @@
                         });
                     }
                 });
+                
+                els.genKnowledge.addEventListener('change', () => {
+                    els.genKnowledgeFields.classList.toggle('hidden', !els.genKnowledge.checked);
+                    updatePreview();
+                });
+                
                 els.domain.addEventListener("change", () => {
                     const preset = domainManager.getDomainPresets()[els.domain.value];
                     if (!preset) return;
@@ -866,16 +966,18 @@
                         "Effacer les entrées",
                         "Ceci va effacer toutes les entrées, y compris le rôle, la tâche, le contexte et les exemples.",
                         () => {
-                            const textInputs = [els.task, els.company, els.sector, els.audience, els.goals, els.constraints, els.deadline, els.examples, els.acceptance];
+                            const textInputs = [els.task, els.company, els.sector, els.audience, els.goals, els.constraints, els.deadline, els.examples, els.acceptance, els.length, els.knowledgeSubject];
                             textInputs.forEach(input => {
                                 input.value = '';
                                 setLS(`dsi_${input.id}`, '');
                             });
-                            const checkboxes = [els.risks, els.costs, els.kpi, els.deps, els.limits, els.sources, els.allowUnknown, els.listUnknowns];
+                            const checkboxes = [els.risks, els.costs, els.kpi, els.deps, els.limits, els.sources, els.allowUnknown, els.listUnknowns, els.chainOfThought, els.genKnowledge, els.selfReflection];
                             checkboxes.forEach(cb => {
                                 cb.checked = false;
                                 setLS(`dsi_${cb.id}`, false);
                             });
+                            els.genKnowledgeFields.classList.add('hidden');
+                            
                             // Réinitialiser les menus à la première option
                             const selects = [els.domain, els.format, els.detail, els.lang, els.tone, els.role, els.team];
                             selects.forEach(select => {
@@ -963,6 +1065,7 @@
 
                                 renderQuickTasks();
                                 renderTeamAdds();
+                                els.genKnowledgeFields.classList.toggle('hidden', !els.genKnowledge.checked);
                                 updatePreview();
                                 alert("Configuration importée avec succès !");
                             } catch (error) {
@@ -975,6 +1078,7 @@
                 // Rendre les éléments initiaux
                 renderQuickTasks();
                 renderTeamAdds();
+                els.genKnowledgeFields.classList.toggle('hidden', !els.genKnowledge.checked);
                 updatePreview();
             };
 
